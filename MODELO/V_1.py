@@ -1,5 +1,7 @@
-from transformers import pipeline
-from PIL import Image
+import torch
+import torchxrayvision as xrv
+import skimage.io
+import torchvision.transforms as transforms
 
 # =========================
 # FUNÇÃO DE GRAVIDADE
@@ -18,106 +20,59 @@ def classificar_gravidade(score):
 
 
 # =========================
-# CARREGA O MODELO
+# CARREGA MODELO
 # =========================
 
 print("Carregando modelo...")
 
-classifier = pipeline(
-    "image-classification",
-    model="HlexNC/chexvision-densenet"
-)
+model = xrv.models.DenseNet(weights="densenet121-res224-nih")
 
-print("Modelo carregado com sucesso!")
+print("Modelo carregado!")
 
 
 # =========================
-# ABRE A IMAGEM
+# CARREGA IMAGEM
 # =========================
 
-imagem_path = "raiox.jpg"
+img = skimage.io.imread("raiox.jpg")
 
-image = Image.open(imagem_path).convert("RGB")
+# Converte para escala cinza
+img = xrv.datasets.normalize(img, 255)
 
+if len(img.shape) > 2:
+    img = img.mean(2)
 
-# =========================
-# ANALISA A IMAGEM
-# =========================
+img = img[None, :, :]
 
-print("\nAnalisando imagem...\n")
+transform = transforms.Compose([
+    xrv.datasets.XRayCenterCrop(),
+    xrv.datasets.XRayResizer(224)
+])
 
-results = classifier(image)
+img = transform(img)
 
-
-# =========================
-# MOSTRA TODOS RESULTADOS
-# =========================
-
-print("===== TODOS OS RESULTADOS =====\n")
-
-for r in results:
-
-    label = r['label']
-    score = r['score']
-
-    porcentagem = score * 100
-
-    gravidade = classificar_gravidade(score)
-
-    print(f"Doença: {label}")
-    print(f"Probabilidade: {porcentagem:.2f}%")
-    print(f"Gravidade: {gravidade}")
-    print("-" * 40)
+img = torch.from_numpy(img).unsqueeze(0)
 
 
 # =========================
-# MOSTRA APENAS DOENÇAS
-# RELEVANTES
+# FAZ PREDIÇÃO
 # =========================
 
-print("\n===== DOENÇAS RELEVANTES =====\n")
+outputs = model(img)
 
-encontrou = False
+results = dict(zip(model.pathologies, outputs[0].detach().numpy()))
 
-for r in results:
+print("\n===== RESULTADOS =====\n")
 
-    if r['score'] > 0.40:
+for pathology, score in results.items():
 
-        encontrou = True
+    score = float(score)
 
-        label = r['label']
-        score = r['score']
-
-        porcentagem = score * 100
+    if score > 0.4:
 
         gravidade = classificar_gravidade(score)
 
-        print(f"Doença Detectada: {label}")
-        print(f"Confiança: {porcentagem:.2f}%")
+        print(f"Doença: {pathology}")
+        print(f"Probabilidade: {score*100:.2f}%")
         print(f"Gravidade: {gravidade}")
         print("-" * 40)
-
-if not encontrou:
-    print("Nenhuma doença relevante encontrada.")
-
-
-# =========================
-# DOENÇA MAIS PROVÁVEL
-# =========================
-
-melhor_resultado = max(results, key=lambda x: x['score'])
-
-print("\n===== DIAGNÓSTICO PRINCIPAL =====\n")
-
-label = melhor_resultado['label']
-score = melhor_resultado['score']
-
-porcentagem = score * 100
-
-gravidade = classificar_gravidade(score)
-
-print(f"Doença Principal: {label}")
-print(f"Probabilidade: {porcentagem:.2f}%")
-print(f"Gravidade: {gravidade}")
-
-print("\nAnálise finalizada!")
