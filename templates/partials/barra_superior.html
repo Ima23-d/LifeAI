@@ -1,0 +1,63 @@
+<!-- BARRA SUPERIOR DE NAVEGAÇÃO -->
+<header class="barra-superior">
+    <div class="container-barra-superior">
+        <!-- Seção Esquerda -->
+        <div class="secao-esquerda-barra">
+            <div class="indicador-status">
+                <div class="ponto-status ativo"></div>
+                <span class="texto-status">IA Ativa</span>
+            </div>
+        </div>
+
+        <!-- Seção Central (Breadcrumb) -->
+        <div class="secao-central-barra">
+            <nav class="caminho-navegacao" aria-label="Navegação em trilha">
+                {% if titulo_pagina %}
+                    <span class="item-caminho">{{ titulo_pagina }}</span>
+                {% endif %}
+            </nav>
+        </div>
+
+        <!-- Seção Direita -->
+        <div class="secao-direita-barra">
+            <!-- Notificações -->
+            <div class="container-notificacoes">
+                <!-- <button class="botao-notificacoes" id="btnNotificacoes" aria-label="Notificações">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span class="badge-notificacoes">3</span>
+                </button> -->
+                <!-- <div class="dropdown-notificacoes" id="dropdownNotificacoes" style="display: none;">
+                    <div class="item-notificacao">
+                        <span class="titulo-notificacao">Novo exame crítico</span>
+                        <span class="tempo-notificacao">Há 2 minutos</span>
+                    </div>
+                    <div class="item-notificacao">
+                        <span class="titulo-notificacao">Análise concluída</span>
+                        <span class="tempo-notificacao">Há 15 minutos</span>
+                    </div>
+                    <div class="item-notificacao">
+                        <span class="titulo-notificacao">Sistema sincronizado</span>
+                        <span class="tempo-notificacao">Há 1 hora</span>
+                    </div>
+                </div> -->
+            </div>
+
+            <!-- Informações do Usuário -->
+            <div class="info-usuario">
+                <div class="detalhes-usuario">
+                    <div class="nome-usuario">{{ usuario }}</div>
+                    <div class="hospital-usuario">{{ hospital }}</div>
+                </div>
+                <button class="avatar-usuario" id="btnPerfil" aria-label="Menu do perfil">
+                    <div class="iniciais-avatar">
+                        {% if usuario %}
+                            {{ usuario.split()[0][0] }}{{ usuario.split()[-1][0] if usuario.split()|length > 1 else '' }}
+                        {% endif %}
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>

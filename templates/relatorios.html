@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - LifeAI</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=SF+Pro+Text:wght@400;500;600&family=SF+Pro+Rounded:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+
+    <style>
+        .conteudo-principal {
+            background-color: #f1f5f9; /* Slate 100 background to match the clean grey/blue */
+            padding: 24px;
+        }
+        
+        .secao-titulo-relatorio {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        
+        .titulo-esquerda h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+            font-family: var(--fonte-display);
+        }
+        
+        .titulo-esquerda p {
+            font-size: 1rem;
+            color: #64748b;
+            margin: 0;
+        }
+        
+        .controles-direita {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .seletor-periodo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .seletor-periodo:hover {
+            border-color: #94a3b8;
+            background-color: #f8fafc;
+        }
+        
+        .botao-exportar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .botao-exportar:hover {
+            border-color: #94a3b8;
+            background-color: #f8fafc;
+        }
+        
+        .icone-calendario, .icone-chevron, .icone-download {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+        
+        .abas-relatorio {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .aba-item {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .aba-item:hover {
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+        
+        .aba-item.ativa {
+            background-color: #1e2e2b; /* Dark pine matching image */
+            color: white;
+            border-color: #1e2e2b;
+        }
+        
+        .cards-kpi-relatorio {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .card-kpi {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04);
+        }
+        
+        .card-kpi-conteudo {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-kpi-titulo {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        
+        .card-kpi-valor {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+            line-height: 1.1;
+        }
+        
+        .card-kpi-comparacao {
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: block;
+            white-space: nowrap;
+        }
+        
+        .comparacao-positivo {
+            color: #10b981;
+        }
+        
+        .comparacao-negativo {
+            color: #ef4444;
+        }
+        
+        .comparacao-texto {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        .card-kpi-icone {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .icone-azul {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+        
+        .icone-vermelho {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .icone-verde {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .icone-laranja {
+            background-color: #ffedd5;
+            color: #ea580c;
+        }
+        
+        .grade-dashboard-relatorios {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .card-dashboard {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .titulo-card-dashboard {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+        
+        .corpo-card-dashboard {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .grafico-doughnut-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: space-between;
+            flex: 1;
+        }
+        
+        .chart-canvas-wrapper {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            flex-shrink: 0;
+        }
+        
+        .legend-doughnut {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+        
+        .legend-label-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        
+        .legend-value {
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        .legend-total-footer {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #64748b;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 8px;
+        }
+        
+        .chart-line-wrapper {
+            height: 180px;
+            width: 100%;
+        }
+        
+        .status-progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .status-progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .status-progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .status-progress-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .status-progress-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .status-progress-bar-bg {
+            height: 6px;
+            background-color: #f1f5f9;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .status-progress-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .bar-teal {
+            background-color: #0d9488;
+        }
+        
+        .bar-yellow {
+            background-color: #eab308;
+        }
+        
+        .bar-blue {
+            background-color: #3b82f6;
+        }
+        
+        .bar-red {
+            background-color: #ef4444;
+        }
+        
+        .status-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .grade-dashboard-relatorios-r2 {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .r2-right-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .gauge-chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex: 1;
+        }
+        
+        .gauge-canvas-outer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .gauge-canvas-wrapper {
+            position: relative;
+            width: 150px;
+            height: 90px;
+            flex-shrink: 0;
+        }
+        
+        .gauge-text-overlay {
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+        }
+        
+        .gauge-value-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+        
+        .gauge-label-text {
+            font-size: 0.62rem;
+            color: #64748b;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .gauge-scale-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 150px;
+            margin-top: 4px;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .ia-metrics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .ia-metric-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+        
+        .ia-metric-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+        }
+        
+        .ia-metric-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .mini-icon-shield {
+            color: #0d9488;
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .table-dashboard {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .table-dashboard th {
+            text-align: left;
+            padding: 8px 12px;
+            color: #64748b;
+            font-weight: 600;
+            border-bottom: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+        
+        .table-dashboard td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            color: #334155;
+        }
+        
+        .table-dashboard tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .td-percent {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        
+        .mini-progress-bar-bg {
+            width: 50px;
+            height: 6px;
+            background-color: #f1f5f9;
+            border-radius: 3px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .mini-progress-bar-fill {
+            height: 100%;
+            background-color: #115e59; /* Dark teal */
+            border-radius: 3px;
+        }
+        
+        .td-align-right {
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .tempo-medio-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .tempo-medio-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+        
+        .tempo-medio-label-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+            font-weight: 600;
+        }
+        
+        .tempo-medio-icon {
+            width: 16px;
+            height: 16px;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .tempo-medio-value {
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .qualidade-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .qualidade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .qualidade-label {
+            color: #475569;
+            font-weight: 600;
+        }
+        
+        .qualidade-value {
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        .grade-dashboard-relatorios-r3 {
+            display: grid;
+            grid-template-columns: 2.3fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 1100px) {
+            .grade-dashboard-relatorios,
+            .grade-dashboard-relatorios-r2,
+            .grade-dashboard-relatorios-r3 {
+                grid-template-columns: 1fr;
+            }
+            .cards-kpi-relatorio {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .cards-kpi-relatorio {
+                grid-template-columns: 1fr;
+            }
+            .secao-titulo-relatorio {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .controles-direita {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body class="pagina-aplicacao">
+    <!-- Barra Lateral -->
+    {% include 'partials/barra_lateral.html' %}
+
+    <div class="area-conteudo">
+        <!-- Barra Superior -->
+        {% include 'partials/barra_superior.html' %}
+
+        <!-- Conteúdo Principal -->
+        <main class="conteudo-principal">
+            
+            <!-- Título da Página e Controles de Período -->
+            <section class="secao-titulo-relatorio">
+                <div class="titulo-esquerda">
+                    <h1 class="titulo-pagina">Relatórios</h1>
+                    <p class="descricao-pagina">Análises e indicadores de desempenho da triagem inteligente</p>
+                </div>
+                <div class="controles-direita">
+                    <div class="seletor-periodo">
+                        <svg class="icone-calendario" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>01/05/2025 - 24/05/2025</span>
+                        <svg class="icone-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <button class="botao-exportar">
+                        <svg class="icone-download" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Exportar
+                    </button>
+                </div>
+            </section>
+
+            <!-- Abas do Dashboard -->
+            <div class="abas-relatorio">
+                <button class="aba-item ativa">Visão Geral</button>
+                <button class="aba-item">Desempenho Da AI</button>
+                <button class="aba-item">Distribuição</button>
+                <button class="aba-item">Tendências</button>
+                <button class="aba-item">Qualidade</button>
+                <button class="aba-item">Produtividade</button>
+            </div>
+
+            <!-- Cards de Estatísticas KPI -->
+            <section class="cards-kpi-relatorio">
+                <!-- Total de Exames -->
+                <div class="card-kpi">
+                    <div class="card-kpi-conteudo">
+                        <span class="card-kpi-titulo">Total de Exames</span>
+                        <span class="card-kpi-valor">1.248</span>
+                        <span class="card-kpi-comparacao comparacao-positivo">↑ 12% <span class="comparacao-texto">vs período anterior</span></span>
+                    </div>
+                    <div class="card-kpi-icone icone-azul">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Exames Críticos -->
+                <div class="card-kpi">
+                    <div class="card-kpi-conteudo">
+                        <span class="card-kpi-titulo">Exames Críticos</span>
+                        <span class="card-kpi-valor">156</span>
+                        <span class="card-kpi-comparacao comparacao-positivo">↑ 8% <span class="comparacao-texto">vs período anterior</span></span>
+                    </div>
+                    <div class="card-kpi-icone icone-vermelho">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Acurácia da IA -->
+                <div class="card-kpi">
+                    <div class="card-kpi-conteudo">
+                        <span class="card-kpi-titulo">Acurácia da IA</span>
+                        <span class="card-kpi-valor">94,2%</span>
+                        <span class="card-kpi-comparacao comparacao-positivo">↑ 2,1% <span class="comparacao-texto">vs período anterior</span></span>
+                    </div>
+                    <div class="card-kpi-icone icone-verde">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="15" x2="23" y2="15"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="15" x2="4" y2="15"></line>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Tempo Médio de Análise -->
+                <div class="card-kpi">
+                    <div class="card-kpi-conteudo">
+                        <span class="card-kpi-titulo">Tempo Médio de Análise</span>
+                        <span class="card-kpi-valor">2m 34s</span>
+                        <span class="card-kpi-comparacao comparacao-negativo">↓ 16% <span class="comparacao-texto">vs período anterior</span></span>
+                    </div>
+                    <div class="card-kpi-icone icone-laranja">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Exames Concluídos -->
+                <div class="card-kpi">
+                    <div class="card-kpi-conteudo">
+                        <span class="card-kpi-titulo">Exames Concluídos</span>
+                        <span class="card-kpi-valor">1.180</span>
+                        <span class="card-kpi-comparacao comparacao-positivo">↑ 10% <span class="comparacao-texto">vs período anterior</span></span>
+                    </div>
+                    <div class="card-kpi-icone icone-verde">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Grid Row 1 -->
+            <section class="grade-dashboard-relatorios">
+                
+                <!-- Exames por Prioridade -->
+                <div class="card-dashboard">
+                    <h3 class="titulo-card-dashboard">Exames por Prioridade</h3>
+                    <div class="corpo-card-dashboard">
+                        <div class="grafico-doughnut-container">
+                            <div class="chart-canvas-wrapper">
+                                <canvas id="chartPrioridade"></canvas>
+                            </div>
+                            <div class="legend-doughnut">
+                                <div class="legend-item">
+                                    <div class="legend-label-group">
+                                        <span class="legend-color-box" style="background-color: #ad2e24;"></span>
+                                        <span>Críticos</span>
+                                    </div>
+                                    <span class="legend-value">156 (12,5%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-label-group">
+                                        <span class="legend-color-box" style="background-color: #ff7a00;"></span>
+                                        <span>Alta</span>
+                                    </div>
+                                    <span class="legend-value">312 (25,0%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-label-group">
+                                        <span class="legend-color-box" style="background-color: #fbc02d;"></span>
+                                        <span>Média</span>
+                                    </div>
+                                    <span class="legend-value">480 (38,5%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-label-group">
+                                        <span class="legend-color-box" style="background-color: #4caf50;"></span>
+                                        <span>Baixa</span>
+                                    </div>
+                                    <span class="legend-value">300 (24,0%)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="legend-total-footer">
+                            Total: 1.248 exames
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evolução Diária de Exames -->
+                <div class="card-dashboard">
+                    <div class="titulo-card-dashboard" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <span>Evolução Diaria de Exames</span>
+                        <div style="display: flex; gap: 12px; font-size: 0.75rem; font-weight: 600;">
+                            <div style="display: flex; align-items: center; gap: 4px; color: #475569;">
+                                <span style="display: inline-block; width: 8px; height: 8px; background-color: #2dc2bd; border-radius: 2px;"></span>
+                                Total de Exames
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 4px; color: #475569;">
+                                <span style="display: inline-block; width: 8px; height: 8px; background-color: #ad2e24; border-radius: 2px;"></span>
+                                Exames Críticos
+                            </div>
+                        </div>
+                    </div>
+                    <div class="corpo-card-dashboard">
+                        <div class="chart-line-wrapper">
+                            <canvas id="chartEvolucao"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo por Status -->
+                <div class="card-dashboard">
+                    <h3 class="titulo-card-dashboard">Resumo por Status</h3>
+                    <div class="corpo-card-dashboard">
+                        <div class="status-progress-list">
+                            <!-- Concluídos -->
+                            <div class="status-progress-item">
+                                <div class="status-progress-header">
+                                    <span class="status-progress-label">Concluídos</span>
+                                    <span class="status-progress-value">1.180 (94,5%)</span>
+                                </div>
+                                <div class="status-progress-bar-bg">
+                                    <div class="status-progress-bar-fill bar-teal" style="width: 94.5%;"></div>
+                                </div>
+                            </div>
+                            <!-- Em análise -->
+                            <div class="status-progress-item">
+                                <div class="status-progress-header">
+                                    <span class="status-progress-label">Em análise</span>
+                                    <span class="status-progress-value">45 (3,6%)</span>
+                                </div>
+                                <div class="status-progress-bar-bg">
+                                    <div class="status-progress-bar-fill bar-yellow" style="width: 3.6%;"></div>
+                                </div>
+                            </div>
+                            <!-- Aguardando análise -->
+                            <div class="status-progress-item">
+                                <div class="status-progress-header">
+                                    <span class="status-progress-label">Aguardando análise</span>
+                                    <span class="status-progress-value">18 (1,4%)</span>
+                                </div>
+                                <div class="status-progress-bar-bg">
+                                    <div class="status-progress-bar-fill bar-blue" style="width: 1.4%;"></div>
+                                </div>
+                            </div>
+                            <!-- Rejeitados -->
+                            <div class="status-progress-item">
+                                <div class="status-progress-header">
+                                    <span class="status-progress-label">Rejeitados</span>
+                                    <span class="status-progress-value">5 (0,4%)</span>
+                                </div>
+                                <div class="status-progress-bar-bg">
+                                    <div class="status-progress-bar-fill bar-red" style="width: 0.4%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-total-row">
+                            <span>Total</span>
+                            <span>1.248 (100%)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Grid Row 2 -->
+            <section class="grade-dashboard-relatorios-r2">
+                
+                <!-- Desempenho da IA
+                <div class="card-dashboard">
+                    <h3 class="titulo-card-dashboard">Desempenho da IA</h3>
+                    <div class="corpo-card-dashboard">
+                        <div class="gauge-chart-container">
+                            <div class="gauge-canvas-outer">
+                                <div class="gauge-canvas-wrapper">
+                                    <canvas id="chartDesempenhoIA"></canvas>
+                                    <div class="gauge-text-overlay">
+                                        <span class="gauge-value-text">94,2%</span>
+                                        <span class="gauge-label-text">Acurácia Geral</span>
+                                    </div>
+                                </div>
+                                <div class="gauge-scale-labels">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div class="ia-metrics-list">
+                                <div class="ia-metric-item">
+                                    <div class="ia-metric-name">
+                                        <svg class="mini-icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        <span>Sensibilidade</span>
+                                    </div>
+                                    <span class="ia-metric-value">95,1%</span>
+                                </div>
+                                <div class="ia-metric-item">
+                                    <div class="ia-metric-name">
+                                        <svg class="mini-icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        <span>Especificidade</span>
+                                    </div>
+                                    <span class="ia-metric-value">93,2%</span>
+                                </div>
+                                <div class="ia-metric-item">
+                                    <div class="ia-metric-name">
+                                        <svg class="mini-icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        <span>VPP (Valor Preditivo Positivo)</span>
+                                    </div>
+                                    <span class="ia-metric-value">91,3%</span>
+                                </div>
+                                <div class="ia-metric-item">
+                                    <div class="ia-metric-name">
+                                        <svg class="mini-icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        <span>VPN (Valor Preditivo Negativo)</span>
+                                    </div>
+                                    <span class="ia-metric-value">96,4%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Top Achados Detectados -->
+                <div class="card-dashboard">
+                    <h3 class="titulo-card-dashboard">Top Achados Detectados</h3>
+                    <div class="corpo-card-dashboard" style="overflow-x: auto;">
+                        <table class="table-dashboard">
+                            <thead>
+                                <tr>
+                                    <th>Achado</th>
+                                    <th style="text-align: right; padding-right: 24px;">Quantidade</th>
+                                    <th style="text-align: right;">Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pneumonia</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">412</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 33.0%;"></div>
+                                            </div>
+                                            <span>33,0%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Consolidação</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">298</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 23.9%;"></div>
+                                            </div>
+                                            <span>23,9%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Derrame Pleural</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">187</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 15.0%;"></div>
+                                            </div>
+                                            <span>15,0%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Edema</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">156</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 12.5%;"></div>
+                                            </div>
+                                            <span>12,5%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Nódulo Pulmonar</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">98</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 7.9%;"></div>
+                                            </div>
+                                            <span>7,9%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Atelectasia</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">67</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 5.4%;"></div>
+                                            </div>
+                                            <span>5,4%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Outros</td>
+                                    <td style="text-align: right; padding-right: 24px; font-weight: 600;">30</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg">
+                                                <div class="mini-progress-bar-fill" style="width: 2.3%;"></div>
+                                            </div>
+                                            <span>2,3%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tempo Médio por Prioridade e Indicadores de Qualidade -->
+                <div class="r2-right-stack">
+                    
+                    <!-- Tempo Médio por Prioridade -->
+                    <div class="card-dashboard">
+                        <h3 class="titulo-card-dashboard">Tempo Médio por Prioridade</h3>
+                        <div class="corpo-card-dashboard">
+                            <div class="tempo-medio-list">
+                                <div class="tempo-medio-item">
+                                    <div class="tempo-medio-label-group">
+                                        <svg class="tempo-medio-icon" style="color: #ad2e24;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                        <span>Críticos</span>
+                                    </div>
+                                    <span class="tempo-medio-value">1m 12s</span>
+                                </div>
+                                <div class="tempo-medio-item">
+                                    <div class="tempo-medio-label-group">
+                                        <svg class="tempo-medio-icon" style="color: #ff7a00;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                        <span>Alta</span>
+                                    </div>
+                                    <span class="tempo-medio-value">2m 18s</span>
+                                </div>
+                                <div class="tempo-medio-item">
+                                    <div class="tempo-medio-label-group">
+                                        <svg class="tempo-medio-icon" style="color: #fbc02d;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                        <span>Média</span>
+                                    </div>
+                                    <span class="tempo-medio-value">3m 45s</span>
+                                </div>
+                                <div class="tempo-medio-item">
+                                    <div class="tempo-medio-label-group">
+                                        <svg class="tempo-medio-icon" style="color: #4caf50;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                        <span>Baixa</span>
+                                    </div>
+                                    <span class="tempo-medio-value">5m 32s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Indicadores de Qualidade -->
+                    <!-- <div class="card-dashboard">
+                        <h3 class="titulo-card-dashboard">Indicadores de Qualidade</h3>
+                        <div class="corpo-card-dashboard">
+                            <div class="qualidade-list">
+                                <div class="qualidade-item">
+                                    <span class="qualidade-label">Taxa de Rejeição</span>
+                                    <span class="qualidade-value">0,4%</span>
+                                </div>
+                                <div class="qualidade-item">
+                                    <span class="qualidade-label">Retrabalho</span>
+                                    <span class="qualidade-value">1,2%</span>
+                                </div>
+                                <div class="qualidade-item">
+                                    <span class="qualidade-label">Concordância Radiologista</span>
+                                    <span class="qualidade-value">96,1%</span>
+                                </div>
+                                <div class="qualidade-item">
+                                    <span class="qualidade-label">SLA Compliance</span>
+                                    <span class="qualidade-value">98,2%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                </div>
+            </section>
+
+            <!-- Dashboard Grid Row 3 -->
+            <section class="grade-dashboard-relatorios-r3">
+                
+                <!-- Distribuição por Modalidade
+                <div class="card-dashboard">
+                    <h3 class="titulo-card-dashboard">Distribuição por Modalidade</h3>
+                    <div class="corpo-card-dashboard" style="overflow-x: auto;">
+                        <table class="table-dashboard">
+                            <thead>
+                                <tr>
+                                    <th>Modalidade</th>
+                                    <th style="text-align: right; padding-right: 48px;">Quantidade</th>
+                                    <th style="text-align: right;">Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>TC de Tórax</td>
+                                    <td style="text-align: right; padding-right: 48px; font-weight: 600;">892</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg" style="width: 250px;">
+                                                <div class="mini-progress-bar-fill" style="width: 71.5%;"></div>
+                                            </div>
+                                            <span style="font-weight: 600;">71.5%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>RX de Tórax</td>
+                                    <td style="text-align: right; padding-right: 48px; font-weight: 600;">312</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg" style="width: 250px;">
+                                                <div class="mini-progress-bar-fill" style="width: 26.0%;"></div>
+                                            </div>
+                                            <span style="font-weight: 600;">26.0%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Outros</td>
+                                    <td style="text-align: right; padding-right: 48px; font-weight: 600;">44</td>
+                                    <td>
+                                        <div class="td-percent">
+                                            <div class="mini-progress-bar-bg" style="width: 250px;">
+                                                <div class="mini-progress-bar-fill" style="width: 3.5%;"></div>
+                                            </div>
+                                            <span style="font-weight: 600;">3.5%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> -->
+
+            </section>
+        </main>
+
+        <!-- Rodapé -->
+        {% include 'partials/rodape.html' %}
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart 1: Exames por Prioridade
+            const ctxPrioridade = document.getElementById('chartPrioridade').getContext('2d');
+            new Chart(ctxPrioridade, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Críticos', 'Alta', 'Média', 'Baixa'],
+                    datasets: [{
+                        data: [156, 312, 480, 300],
+                        backgroundColor: ['#ad2e24', '#ff7a00', '#fbc02d', '#4caf50'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = 1248;
+                                    const value = context.raw;
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return ` ${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Chart 2: Evolução Diária de Exames
+            const ctxEvolucao = document.getElementById('chartEvolucao').getContext('2d');
+            new Chart(ctxEvolucao, {
+                type: 'line',
+                data: {
+                    labels: ['18/05', '19/05', '20/05', '21/05', '22/05', '23/05', '24/05'],
+                    datasets: [
+                        {
+                            label: 'Total de Exames',
+                            data: [140, 160, 150, 180, 195, 170, 190],
+                            borderColor: '#2dc2bd',
+                            backgroundColor: '#2dc2bd',
+                            tension: 0.3,
+                            borderWidth: 2.5,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#2dc2bd',
+                            fill: false
+                        },
+                        {
+                            label: 'Exames Críticos',
+                            data: [15, 22, 18, 25, 20, 16, 22],
+                            borderColor: '#ad2e24',
+                            backgroundColor: '#ad2e24',
+                            tension: 0.3,
+                            borderWidth: 2.5,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#ad2e24',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 250,
+                            ticks: {
+                                stepSize: 50,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: Desempenho da IA (Semicircle Gauge)
+            const ctxDesempenhoIA = document.getElementById('chartDesempenhoIA').getContext('2d');
+            new Chart(ctxDesempenhoIA, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Acurácia', 'Resto'],
+                    datasets: [{
+                        data: [94.2, 5.8],
+                        backgroundColor: ['#0d6b5e', '#e8f5f3'],
+                        borderWidth: 0,
+                        hoverBackgroundColor: ['#0d6b5e', '#e8f5f3']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    circumference: 180,
+                    rotation: -90,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,733 @@
+/* ===============================================
+   LIFEAI - DASHBOARD (PAINEL DE CONTROLE)
+   =============================================== */
+
+/* ── STAT CARDS ── */
+.painel-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    border: 1px solid #f0f0f0;
+}
+
+.stat-card__left {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+}
+
+.stat-card__label {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #9ca3af;
+}
+
+.stat-card__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.stat-card__sub {
+    font-size: .75rem;
+    color: #9ca3af;
+    margin-top: .15rem;
+}
+
+.stat-card__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-card__icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.icon-teal  { background: rgba(45, 194, 189, .12); color: #2dc2bd; }
+.icon-red   { background: rgba(239, 68, 68, .12);  color: #ef4444; }
+.icon-green { background: rgba(16, 185, 129, .12); color: #10b981; }
+.icon-amber { background: rgba(245, 158, 11, .12); color: #f59e0b; }
+
+/* ── LAYOUT PRINCIPAL DO PAINEL ── */
+.painel-corpo {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.25rem;
+}
+
+/* ── CARD ANÁLISE RECENTE ── */
+.card-analise {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.4rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    border: 1px solid #f0f0f0;
+
+    display: inline-block;
+    width: auto;
+    min-width: 900px;
+}
+
+.card-analise__titulo {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.1rem;
+}
+
+.analise-grid {
+    display: grid;
+    grid-template-columns: minmax(350px, 450px) 1fr;
+    gap: 2rem;
+
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    align-items: center;
+    justify-content: space-between;
+}
+
+.analise-xray {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    aspect-ratio: 1 / 1.1;
+}
+
+.analise-xray img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ── INFO DO PACIENTE ── */
+.analise-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1.2rem;
+    line-height: 1.8;
+}
+.info-row {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.info-row__label {
+    font-size: .72rem;
+    color: #9ca3af;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.info-row__val {
+    font-size: .93rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* ── RESULTADO PRINCIPAL ── */
+.resultado-box {
+    background: #fff0f0;
+    border: 1.5px solid #fca5a5;
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    width: fit-content;
+}
+
+.resultado-box__label {
+    font-size: .7rem;
+    color: #ef4444;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .3rem;
+}
+
+.resultado-box__diag {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.resultado-box__prob {
+    font-size: .82rem;
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* ── BADGE ALTA (DASHBOARD) ── */
+.badge-alta {
+    display: inline-block;
+    padding: .25rem .7rem;
+    background: #fff7ed;
+    border: 1.5px solid #f97316;
+    color: #ea580c;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    width: fit-content;
+}
+
+/* ── ACHADOS DETECTADOS ── */
+.achados-section {
+    border-top: 1px solid #f3f4f6;
+    padding-top: .9rem;
+    margin-top: 1rem;
+}
+
+.achados-titulo {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .6rem;
+}
+
+.achados-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .9rem;
+}
+
+.achado-tag {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .3rem .7rem;
+    border-radius: 20px;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.achado-tag span {
+    font-size: .72rem;
+    opacity: .85;
+}
+
+.tag-red    { background: #fef2f2; color: #dc2626; }
+.tag-orange { background: #fff7ed; color: #ea580c; }
+.tag-blue   { background: #eff6ff; color: #2563eb; }
+.tag-yellow { background: #fefce8; color: #ca8a04; }
+
+/* ── RESUMO IA ── */
+.resumo-ia__label {
+    font-size: .7rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .35rem;
+}
+
+.resumo-ia {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    font-size: .82rem;
+    color: #374151;
+    line-height: 1.55;
+    border-left: 3px solid #2dc2bd;
+}
+
+/* ── COLUNA DIREITA ── */
+.coluna-direita {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.card-lateral {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    border: 1px solid #f0f0f0;
+}
+
+.lateral-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.lateral-header__titulo {
+    font-size: .88rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.lateral-header__link {
+    font-size: .75rem;
+    color: #2dc2bd;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.lateral-header__link:hover {
+    text-decoration: underline;
+}
+
+/* ── LISTA DE PACIENTES ── */
+.paciente-lista {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.paciente-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem 0;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.paciente-item:last-child {
+    border-bottom: none;
+}
+
+.paciente-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.paciente-avatar svg {
+    width: 16px;
+    height: 16px;
+}
+
+.paciente-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.paciente-nome {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.paciente-sub {
+    font-size: .72rem;
+    color: #9ca3af;
+}
+
+/* ── BADGES DE PRIORIDADE (LISTA) ── */
+.badge-critica {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: .2rem .55rem;
+    border-radius: 5px;
+    font-size: .68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badge-alta-p {
+    background: #fff7ed;
+    color: #ea580c;
+    padding: .2rem .55rem;
+    border-radius: 5px;
+    font-size: .68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badge-media {
+    background: #fefce8;
+    color: #ca8a04;
+    padding: .2rem .55rem;
+    border-radius: 5px;
+    font-size: .68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badge-baixa {
+    background: #f0fdf4;
+    color: #16a34a;
+    padding: .2rem .55rem;
+    border-radius: 5px;
+    font-size: .68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* ── GRÁFICO DONUT ── */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .9rem;
+}
+
+.chart-hoje {
+    font-size: .72rem;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.chart-body {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.donut-wrapper {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+}
+
+.donut-wrapper canvas {
+    width: 110px !important;
+    height: 110px !important;
+}
+
+.chart-legenda {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+}
+
+.legenda-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .8rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.legenda-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dot-red    { background: #ef4444; }
+.dot-yellow { background: #f59e0b; }
+.dot-green  { background: #10b981; }
+
+.legenda-num {
+    margin-left: auto;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* ===============================================
+   NOVO EXAME - LAYOUT
+   =============================================== */
+
+.container-novo-exame {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.grade-novo-exame {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    justify-items: center;
+}
+
+.grade-novo-exame.com-resultado {
+    grid-template-columns: 1fr 1fr;
+}
+
+.coluna-formulario {
+    width: 100%;
+    max-width: 800px;
+}
+
+.card-formulario {
+    width: 100%;
+}
+
+.linha-campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.linha-campos .grupo-campo-cheio {
+    grid-column: 1 / -1;
+}
+
+.secao-titulo {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* ===============================================
+   PÁGINA EXAMES
+   =============================================== */
+
+.ex-titulo { margin-bottom: 1.5rem; }
+.ex-h1 { font-size: 1.6rem; font-weight: 700; color: #1f2937; margin: 0 0 .2rem; }
+.ex-sub { font-size: .88rem; color: #9ca3af; margin: 0; }
+
+/* stat cards */
+.ex-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.ex-stat-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.1rem 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    border: 1px solid #f0f0f0;
+}
+
+.ex-stat-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.ex-stat-icon svg { width: 22px; height: 22px; }
+
+.ex-stat-red   .ex-stat-icon { background: rgba(239,68,68,.1);   color: #ef4444; }
+.ex-stat-amber .ex-stat-icon { background: rgba(245,158,11,.1);  color: #f59e0b; }
+.ex-stat-green .ex-stat-icon { background: rgba(16,185,129,.1);  color: #10b981; }
+.ex-stat-blue  .ex-stat-icon { background: rgba(59,130,246,.1);  color: #3b82f6; }
+
+.ex-stat-body { display: flex; flex-direction: column; gap: .1rem; }
+.ex-stat-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: #9ca3af; }
+.ex-stat-value { font-size: 1.9rem; font-weight: 700; color: #1f2937; line-height: 1.1; }
+.ex-stat-desc  { font-size: .72rem; color: #9ca3af; }
+
+/* toolbar */
+.ex-toolbar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    padding: .75rem 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+.ex-search {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex: 1;
+    color: #9ca3af;
+}
+.ex-search svg { width: 18px; height: 18px; flex-shrink: 0; }
+.ex-search input {
+    border: none;
+    outline: none;
+    font-size: .88rem;
+    color: #1f2937;
+    background: transparent;
+    width: 100%;
+}
+.ex-search input::placeholder { color: #9ca3af; }
+
+.ex-toolbar-right { display: flex; align-items: center; gap: .6rem; }
+
+.ex-btn-filtro, .ex-btn-export {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .45rem .9rem;
+    border-radius: 8px;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    transition: background .15s;
+    white-space: nowrap;
+}
+.ex-btn-filtro svg, .ex-btn-export svg { width: 15px; height: 15px; }
+.ex-btn-filtro:hover, .ex-btn-export:hover { background: #f9fafb; }
+.ex-btn-export { border-color: #2dc2bd; color: #2dc2bd; }
+.ex-btn-export:hover { background: rgba(45,194,189,.05); }
+
+.ex-select-wrap { position: relative; }
+.ex-select {
+    padding: .45rem 2rem .45rem .8rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: .82rem;
+    color: #374151;
+    background: #fff;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .5rem center;
+    background-size: 16px;
+}
+
+/* table */
+.ex-table-wrap {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    overflow: hidden;
+}
+
+.ex-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .84rem;
+}
+
+.ex-table thead {
+    background: #f9fafb;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ex-table th {
+    padding: .85rem 1rem;
+    text-align: left;
+    font-size: .72rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+}
+
+.ex-row td {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid #f9fafb;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.ex-row:last-child td { border-bottom: none; }
+.ex-row:hover td { background: #fafafa; }
+
+.ex-td-paciente { font-weight: 600; color: #1f2937; }
+.ex-td-id { font-family: monospace; font-size: .78rem; color: #6b7280; }
+
+/* badges */
+.ex-badge {
+    display: inline-block;
+    padding: .2rem .6rem;
+    border-radius: 6px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .3px;
+    white-space: nowrap;
+}
+.ex-badge-critica { background: #fef2f2; color: #dc2626; }
+.ex-badge-alta    { background: #fff7ed; color: #ea580c; }
+.ex-badge-media   { background: #fefce8; color: #ca8a04; }
+.ex-badge-baixa   { background: #f0fdf4; color: #16a34a; }
+
+/* status */
+.ex-status {
+    display: inline-block;
+    padding: .2rem .65rem;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.ex-status-concluido { background: #f0fdf4; color: #16a34a; }
+.ex-status-analise   { background: #eff6ff; color: #2563eb; }
+
+/* ação */
+.ex-btn-acao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all .15s;
+    text-decoration: none;
+}
+.ex-btn-acao svg { width: 15px; height: 15px; }
+.ex-btn-acao:hover { border-color: #2dc2bd; color: #2dc2bd; background: rgba(45,194,189,.06); }
+
+/* ===============================================
+   RESPONSIVO
+   =============================================== */
+
+@media (max-width: 1100px) {
+    .painel-corpo {
+        grid-template-columns: 1fr;
+    }
+
+    .painel-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grade-novo-exame.com-resultado {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .painel-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .analise-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .linha-campos {
+        grid-template-columns: 1fr;
+    }
+}

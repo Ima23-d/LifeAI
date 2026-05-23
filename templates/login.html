@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LifeAI</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=SF+Pro+Text:wght@400;500;600&family=SF+Pro+Rounded:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+</head>
+<body class="pagina-autenticacao">
+    <div class="container-login">
+        <!-- Seção Esquerda - Formulário -->
+        <div class="secao-login">
+            <div class="wrapper-login">
+                <!-- Logo -->
+                <div class="logo-wrapper">
+                    <div class="logo" >
+                        <img src="{{ url_for('static', filename='Logo/logo-life-ai.png') }}" alt="Logo" style="width: 100%; height: 100%;">
+                    </div>
+                </div>
+
+                <!-- Título -->
+                <h1 class="titulo-login">Bem-vindo</h1>
+                <p class="subtitulo-login">Acesse sua conta para continuar</p>
+
+                <!-- Mensagem de Erro -->
+                {% if erro %}
+                    <div class="alerta alerta-erro" role="alert">
+                        <svg class="icone-alerta" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <span>{{ erro }}</span>
+                    </div>
+                {% endif %}
+
+                <!-- Formulário de Login -->
+                <form method="POST" action="{{ url_for('pagina_login') }}" class="formulario-login">
+                    <!-- Email -->
+                    <div class="grupo-campo">
+                        <label for="email" class="rotulo-campo">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="campo-entrada" 
+                            placeholder="seu.email@hospital.com"
+                            required
+                        >
+                    </div>
+
+                    <!-- Senha -->
+                    <div class="grupo-campo">
+                        <label for="senha" class="rotulo-campo">Senha</label>
+                        <input 
+                            type="password" 
+                            id="senha" 
+                            name="senha" 
+                            class="campo-entrada" 
+                            placeholder="••••••••"
+                            required
+                        >
+                    </div>
+
+                    <!-- Lembrar & Recuperar -->
+                    <div class="opcoes-login">
+                        <label class="checkbox-customizado">
+                            <input type="checkbox" name="lembrar" id="lembrar">
+                            <span>Lembrar-me</span>
+                        </label>
+                        <a href="#" class="link-recuperar">Esqueceu a senha?</a>
+                    </div>
+
+                    <!-- Botão Entrar -->
+                    <button type="submit" class="botao botao-primario botao-cheio" id="btnEntrar">
+                        Entrar
+                    </button>
+                </form>
+
+                <!-- Link para Cadastro -->
+                <div class="rodape-autenticacao">
+                    <p class="texto-rodape-auth">
+                        Não tem uma conta? 
+                        <a href="{{ url_for('pagina_cadastro') }}" class="link-auth">Crie uma agora</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Direita - Imagem/Branding -->
+<div 
+    class="secao-imagem-login" 
+    style="
+        background: 
+        linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+        url('{{ url_for('static', filename='Logo/Tela login.png') }}');
+        background-size: cover;
+        background-position: center;
+    ">
+            <div class="conteudo-imagem-login">
+                <div class="icone-grande-login">
+                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                        <circle cx="50" cy="35" r="15"/>
+                        <path d="M30 55h40c5.523 0 10 4.477 10 10v20c0 2.21-1.79 4-4 4H24c-2.21 0-4-1.79-4-4V65c0-5.523 4.477-10 10-10z"/>
+                        <path d="M50 70v10M45 75h10"/>
+                    </svg>
+                </div>
+                
+                <h2 class="titulo-imagem-login">Triagem Inteligente</h2>
+                <p class="descricao-imagem-login">
+                    Análise automática de exames radiológicos com IA para otimização do atendimento hospitalar.
+                </p>
+
+                <ul class="lista-beneficios-login">
+                    <li class="item-beneficio">
+                        <svg class="icone-check" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span>Análise em segundos</span>
+                    </li>
+                    <li class="item-beneficio">
+                        <svg class="icone-check" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span>Precisão 94%+</span>
+                    </li>
+                    <li class="item-beneficio">
+                        <svg class="icone-check" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span>Segurança LGPD</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+</body>
+</html>

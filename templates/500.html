@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Erro Interno - LifeAI</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=SF+Pro+Text:wght@400;500;600&family=SF+Pro+Rounded:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+</head>
+<body class="pagina-erro">
+    <div class="container-erro">
+        <h1 class="codigo-erro">500</h1>
+        <h2 class="titulo-erro">Erro Interno do Servidor</h2>
+        <p class="descricao-erro">
+            Desculpe! Ocorreu um erro interno no servidor. 
+            Nosso time foi notificado e está trabalhando para corrigir o problema.
+        </p>
+        
+        <div class="botoes-erro">
+            <a href="{{ url_for('painel_controle') }}" class="botao-erro botao-primario-erro">
+                ← Voltar ao Painel
+            </a>
+            <a href="{{ url_for('pagina_login') }}" class="botao-erro botao-secundario-erro">
+                Ir para Login
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - LifeAI</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=SF+Pro+Text:wght@400;500;600&family=SF+Pro+Rounded:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+</head>
+<body class="pagina-aplicacao">
+    <!-- Barra Lateral -->
+    {% include 'partials/barra_lateral.html' %}
+
+    <div class="area-conteudo">
+        <!-- Barra Superior -->
+        {% include 'partials/barra_superior.html' %}
+
+        <!-- Conteúdo Principal -->
+        <main class="conteudo-principal">
+            <!-- Título da Página -->
+            <section class="secao-titulo">
+                <h1 class="titulo-pagina">Configurações</h1>
+                <p class="descricao-pagina">Personalize sua experiência no LifeAI</p>
+            </section>
+
+            <div class="container-configuracoes">
+                <!-- Menu Lateral de Configurações -->
+                <aside class="menu-lateral-configuracoes">
+                    <nav class="navegacao-configuracoes">
+                        <a href="#perfil" class="item-menu-config ativo" data-secao="perfil">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span>Perfil</span>
+                        </a>
+
+                        <a href="#seguranca" class="item-menu-config" data-secao="seguranca">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Segurança</span>
+                        </a>
+
+                        <a href="#ia" class="item-menu-config" data-secao="ia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 12 14.6V9a2 2 0 10-4 0v.393a3.374 3.374 0 001.371 2.708l-.548.547z"/>
+                            </svg>
+                            <span>IA</span>
+                        </a>
+
+                        <a href="#notificacoes" class="item-menu-config" data-secao="notificacoes">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span>Notificações</span>
+                        </a>
+
+                        <a href="#integracao" class="item-menu-config" data-secao="integracao">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            <span>Integração</span>
+                        </a>
+
+                        <a href="#aparencia" class="item-menu-config" data-secao="aparencia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                            </svg>
+                            <span>Aparência</span>
+                        </a>
+
+                        <a href="#acessibilidade" class="item-menu-config" data-secao="acessibilidade">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm0 0c-1.657 0-3 1.343-3 3v4c0 1.657 1.343 3 3 3s3-1.343 3-3v-4c0-1.657-1.343-3-3-3z"/>
+                            </svg>
+                            <span>Acessibilidade</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- Conteúdo das Configurações -->
+                <div class="conteudo-configuracoes">
+                    <!-- Seção Perfil -->
+                    <section class="secao-config" id="perfil-secao">
+                        <h2 class="titulo-secao-config">Perfil</h2>
+                        
+                        <form class="formulario-config" id="formularioPerfil">
+                            <div class="grupo-campo">
+                                <label for="nomeCompleto" class="rotulo-campo">Nome Completo</label>
+                                <input type="text" id="nomeCompleto" class="campo-entrada" value="{{ usuario }}" required>
+                            </div>
+
+                            <div class="grupo-campo">
+                                <label for="email" class="rotulo-campo">Email</label>
+                                <input type="email" id="email" class="campo-entrada" value="{{ email }}" required>
+                            </div>
+
+                            <div class="grupo-campo">
+                                <label for="crm" class="rotulo-campo">CRM (Conselho Regional de Medicina)</label>
+                                <input type="text" id="crm" class="campo-entrada" value="{{ crm }}" required>
+                            </div>
+
+                            <div class="grupo-campo">
+                                <label for="hospital" class="rotulo-campo">Hospital/Instituição</label>
+                                <input type="text" id="hospital" class="campo-entrada" value="{{ hospital }}" required>
+                            </div>
+
+                            <button type="submit" class="botao botao-primario">Salvar Perfil</button>
+                        </form>
+                    </section>
+
+                    <!-- Seção Segurança -->
+                    <section class="secao-config" id="seguranca-secao" style="display: none;">
+                        <h2 class="titulo-secao-config">Segurança</h2>
+                        
+                        <div class="card-secao-config">
+                            <h3 class="subtitulo-secao-config">Alterar Senha</h3>
+                            <form class="formulario-config" id="formularioSenha">
+                                <div class="grupo-campo">
+                                    <label for="senhaAtual" class="rotulo-campo">Senha Atual</label>
+                                    <input type="password" id="senhaAtual" class="campo-entrada" required>
+                                </div>
+
+                                <div class="grupo-campo">
+                                    <label for="senhaNova" class="rotulo-campo">Senha Nova</label>
+                                    <input type="password" id="senhaNova" class="campo-entrada" required>
+                                </div>
+
+                                <div class="grupo-campo">
+                                    <label for="confirmarSenha" class="rotulo-campo">Confirmar Senha</label>
+                                    <input type="password" id="confirmarSenha" class="campo-entrada" required>
+                                </div>
+
+                                <button type="submit" class="botao botao-primario">Atualizar Senha</button>
+                            </form>
+                        </div>
+
+                        <div class="card-secao-config">
+                            <h3 class="subtitulo-secao-config">Autenticação de Dois Fatores</h3>
+                            <div class="item-configuracao-toggle">
+                                <div class="info-toggle">
+                                    <p class="texto-toggle">Ative a autenticação de dois fatores para maior segurança</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="toggleAutenticacao2FA">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção IA -->
+                    <section class="secao-config" id="ia-secao" style="display: none;">
+                        <h2 class="titulo-secao-config">Configurações de IA</h2>
+                        
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Análise Automática</p>
+                                <p class="descricao-toggle">Analisar exames automaticamente quando enviados</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Sugestões de Prioridade</p>
+                                <p class="descricao-toggle">Receber sugestões de reorganização da fila</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Modo de Precisão Alta</p>
+                                <p class="descricao-toggle">Usar modelo de IA mais preciso (mais lento)</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Seção Notificações -->
+                    <section class="secao-config" id="notificacoes-secao" style="display: none;">
+                        <h2 class="titulo-secao-config">Notificações</h2>
+                        
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Exames Críticos</p>
+                                <p class="descricao-toggle">Notificar imediatamente de exames críticos</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Relatórios Diários</p>
+                                <p class="descricao-toggle">Receber resumo diário de atividades</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Seção Integração -->
+                    <section class="secao-config" id="integracao-secao" style="display: none;">
+                        <h2 class="titulo-secao-config">Integrações</h2>
+                        <p class="descricao-integracao">Conecte LifeAI com outros sistemas hospitalares</p>
+                        
+                        <div class="grid-integracao">
+                            <div class="card-integracao">
+                                <h4 class="titulo-integracao">SUS</h4>
+                                <p class="descricao-integracao-card">Sistema Único de Saúde</p>
+                                <button class="botao botao-secundario botao-pequeno">Conectar</button>
+                            </div>
+
+                            <div class="card-integracao">
+                                <h4 class="titulo-integracao">PACS</h4>
+                                <p class="descricao-integracao-card">Picture Archiving System</p>
+                                <button class="botao botao-secundario botao-pequeno">Conectar</button>
+                            </div>
+
+                            <div class="card-integracao">
+                                <h4 class="titulo-integracao">HL7</h4>
+                                <p class="descricao-integracao-card">Health Level 7</p>
+                                <button class="botao botao-secundario botao-pequeno">Conectar</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção Aparência -->
+                    <section class="secao-config" id="aparencia-secao" style="display: none;">
+                        <h2 class="titulo-secao-config">Aparência</h2>
+                        
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Modo Escuro</p>
+                                <p class="descricao-toggle">Usar tema escuro na interface</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="grupo-campo">
+                            <label for="idioma" class="rotulo-campo">Idioma</label>
+                            <select id="idioma" class="campo-entrada">
+                                <option value="pt-BR" selected>Português (Brasil)</option>
+                                <option value="pt-PT">Português (Portugal)</option>
+                                <option value="en-US">English</option>
+                                <option value="es-ES">Español</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <!-- Seção Acessibilidade -->
+                    <section class="secao-config" id="acessibilidade-secao" style="display: none;">
+                        <h2 class="titulo-secao-config">Acessibilidade</h2>
+                        
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Alto Contraste</p>
+                                <p class="descricao-toggle">Aumentar contraste para melhor legibilidade</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Texto Maior</p>
+                                <p class="descricao-toggle">Aumentar tamanho da fonte globalmente</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+
+                        <div class="item-configuracao-toggle">
+                            <div class="info-toggle">
+                                <p class="titulo-toggle">Reduzir Animações</p>
+                                <p class="descricao-toggle">Minimizar animações e transições</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        {% include 'partials/rodape.html' %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+</body>
+</html>

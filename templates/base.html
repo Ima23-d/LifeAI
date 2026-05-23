@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LifeAI - Plataforma de Inteligência Artificial para Triagem Hospitalar Inteligente">
+  <meta name="author" content="LifeAI">
+  <meta name="theme-color" content="#2dc2bd">
+  
+  <title>{% block titulo %}LifeAI - Triagem Hospitalar Inteligente{% endblock %}</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=SF+Pro+Text:wght@400;500;600&family=SF+Pro+Rounded:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- CSS Principal -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+  
+  {% block css_adicional %}{% endblock %}
+</head>
+<body>
+  <!-- Container de Notificações -->
+  <div class="container-notificacoes" id="container-notificacoes"></div>
+  
+  {% if session.usuario %}
+  <!-- Barra Lateral -->
+  {% include "partials/barra_lateral.html" %}
+  
+  <!-- Conteúdo Principal -->
+  <div class="area-conteudo">
+    <!-- Barra Superior -->
+    {% include "partials/barra_superior.html" %}
+    
+    <!-- Conteúdo da Página -->
+    <main class="conteudo-principal">
+      {% block conteudo %}{% endblock %}
+    </main>
+    
+    <!-- Rodapé -->
+    {% include "partials/rodape.html" %}
+  </div>
+  
+  {% else %}
+  <!-- Conteúdo Sem Sidebar (Para Login/Cadastro) -->
+  {% block conteudo %}{% endblock %}
+  {% endif %}
+  
+  <!-- JavaScript Principal -->
+  <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+  
+  {% block js_adicional %}{% endblock %}
+</body>
+</html>

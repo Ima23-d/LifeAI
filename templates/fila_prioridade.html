@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila de Prioridade - LifeAI</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=SF+Pro+Text:wght@400;500;600&family=SF+Pro+Rounded:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-dashboard.css') }}">
+</head>
+<body class="pagina-aplicacao">
+    <!-- Barra Lateral -->
+    {% include 'partials/barra_lateral.html' %}
+
+    <div class="area-conteudo">
+        <!-- Barra Superior -->
+        {% include 'partials/barra_superior.html' %}
+
+        <!-- Conteúdo Principal -->
+        <main class="conteudo-principal">
+            <div style="max-width: 100%; margin: 0 auto; width: 100%;">
+                
+                <!-- Título -->
+                <div class="ex-titulo">
+                    <h1 class="ex-h1">Fila De Prioridade</h1>
+                    <p class="ex-sub">Fila de triagem ordenada por prioridade clínica e risco</p>
+                </div>
+
+                <!-- STAT CARDS (5 cards) -->
+                <div class="ex-stats" style="grid-template-columns: repeat(5, 1fr);">
+                    <!-- Críticos -->
+                    <div class="ex-stat-card ex-stat-red">
+                        <div class="ex-stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <div class="ex-stat-body">
+                            <span class="ex-stat-label" style="text-transform: none; color: #6b7280;">Críticos</span>
+                            <span class="ex-stat-value">12</span>
+                            <span class="ex-stat-desc">Precisam de atenção imediata</span>
+                        </div>
+                    </div>
+
+                    <!-- Alta Prioridade -->
+                    <div class="ex-stat-card ex-stat-amber">
+                        <div class="ex-stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ex-stat-body">
+                            <span class="ex-stat-label" style="text-transform: none; color: #6b7280;">Alta Prioridade</span>
+                            <span class="ex-stat-value">18</span>
+                            <span class="ex-stat-desc">Análise prioritária</span>
+                        </div>
+                    </div>
+
+                    <!-- Média Prioridade -->
+                    <div class="ex-stat-card" style="background: #fff; border-color: #f0f0f0;">
+                        <div class="ex-stat-icon" style="background: rgba(234, 179, 8, 0.1); color: #eab308;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ex-stat-body">
+                            <span class="ex-stat-label" style="text-transform: none; color: #6b7280;">Média Prioridade</span>
+                            <span class="ex-stat-value">22</span>
+                            <span class="ex-stat-desc">Acompanhar análise</span>
+                        </div>
+                    </div>
+
+                    <!-- Baixa Prioridade -->
+                    <div class="ex-stat-card ex-stat-green">
+                        <div class="ex-stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ex-stat-body">
+                            <span class="ex-stat-label" style="text-transform: none; color: #6b7280;">Baixa Prioridade</span>
+                            <span class="ex-stat-value">8</span>
+                            <span class="ex-stat-desc">Menor urgência</span>
+                        </div>
+                    </div>
+
+                    <!-- Total na Fila -->
+                    <div class="ex-stat-card ex-stat-blue">
+                        <div class="ex-stat-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="ex-stat-body">
+                            <span class="ex-stat-label" style="text-transform: none; color: #6b7280;">Total na Fila</span>
+                            <span class="ex-stat-value">60</span>
+                            <span class="ex-stat-desc">Aguardando análise</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOOLBAR DA FILA -->
+                <div class="ex-toolbar" style="justify-content: space-between; padding: 1rem 1.25rem; border-radius: 14px 14px 0 0; margin-bottom: 0; border-bottom: none; box-shadow: none;">
+                    <div class="filtros-tags" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <div class="filtro-tag tag-ativo" style="background: rgba(45, 194, 189, 0.2); padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #2dc2bd; color: #1f6f5a; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                            Todos <span style="background: #fff; padding: 0 0.4rem; border-radius: 4px; border: 1px solid #2dc2bd; color: #1f6f5a; font-size: 0.75rem;">60</span>
+                        </div>
+                        <div class="filtro-tag" style="background: #fff; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #e5e7eb; color: #374151; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                            Críticos <span style="background: #fef2f2; padding: 0 0.4rem; border-radius: 4px; border: 1px solid #fca5a5; color: #dc2626; font-size: 0.75rem;">12</span>
+                        </div>
+                        <div class="filtro-tag" style="background: #fff; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #e5e7eb; color: #374151; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                            Alta <span style="background: #fff7ed; padding: 0 0.4rem; border-radius: 4px; border: 1px solid #fdba74; color: #ea580c; font-size: 0.75rem;">18</span>
+                        </div>
+                        <div class="filtro-tag" style="background: #fff; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #e5e7eb; color: #374151; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                            Média <span style="background: #fefce8; padding: 0 0.4rem; border-radius: 4px; border: 1px solid #fde047; color: #ca8a04; font-size: 0.75rem;">22</span>
+                        </div>
+                        <div class="filtro-tag" style="background: #fff; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #e5e7eb; color: #374151; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                            Baixa <span style="background: #f0fdf4; padding: 0 0.4rem; border-radius: 4px; border: 1px solid #86efac; color: #16a34a; font-size: 0.75rem;">8</span>
+                        </div>
+                    </div>
+
+                    <div class="ex-toolbar-right" style="gap: 0.8rem;">
+                        <span style="font-size: 0.8rem; color: #6b7280; font-weight: 500;">Ordenar por:</span>
+                        <div class="ex-select-wrap">
+                            <select class="ex-select" style="min-width: 220px; color: #4b5563;">
+                                <option>Prioridade (maior -> menor)</option>
+                                <option>Prioridade (menor -> maior)</option>
+                                <option>Mais recentes</option>
+                                <option>Mais antigos</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABELA FILA -->
+                <div class="ex-table-wrap" style="border-radius: 0; border-top: 1px solid #f0f0f0; border-bottom: none; box-shadow: none; border-left: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0;">
+                    <table class="ex-table" style="border-collapse: separate; border-spacing: 0; width: 100%;">
+                        <thead style="background: #f1f5f9;">
+                            <tr>
+                                <th style="padding-left: 2rem;">Prioridade</th>
+                                <th>Paciente</th>
+                                <th>ID do Exame</th>
+                                <th>Achado Principal</th>
+                                <th>Probabilidade</th>
+                                <th>Enviado em</th>
+                                <th style="text-align: right; padding-right: 2rem;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set demo_fila = [
+                                ('CRÍTICO', 'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '92%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('CRÍTICO', 'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '91%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('ALTA',    'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '72%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('ALTA',    'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '61%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('MÉDIA',   'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '58%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('MÉDIA',   'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '18%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('BAIXA',   'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '22%', '24/05/2026 - 10:21', 'Há 11 min'),
+                                ('BAIXA',   'Maria Oliveira, 67 anos', 'Femenino',  'EXM-2025-0524-1021', 'TC de Tórax', 'Pneumonia', 'Consolidação extensa', '—',   '24/05/2026 - 10:21', 'Há 11 min')
+                            ] %}
+                            
+                            {% for pri, paciente, sexo, id_ex, tipo, achado, subtipo, prob, data, tempo in demo_fila %}
+                            <tr class="ex-row">
+                                <td style="padding-left: 2rem; position: relative; border-bottom: 1px solid #f3f4f6;">
+                                    <div style="position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px; background: {% if pri == 'CRÍTICO' %}#dc2626{% elif pri == 'ALTA' %}#ea580c{% elif pri == 'MÉDIA' %}#eab308{% else %}#22c55e{% endif %}; border-radius: 0 4px 4px 0;"></div>
+                                    <span class="ex-badge {% if pri == 'CRÍTICO' %}ex-badge-critica{% elif pri == 'ALTA' %}ex-badge-alta{% elif pri == 'MÉDIA' %}ex-badge-media{% else %}ex-badge-baixa{% endif %}" style="padding: 0.3rem 0.8rem; font-size: 0.65rem;">
+                                        {{ pri }}
+                                    </span>
+                                </td>
+                                <td style="border-bottom: 1px solid #f3f4f6; padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #6b7280; border: 1px solid #e5e7eb;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span style="font-weight: 700; color: #1f2937; font-size: 0.85rem;">{{ paciente }}</span>
+                                            <span style="font-size: 0.75rem; color: #9ca3af;">{{ sexo }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border-bottom: 1px solid #f3f4f6; padding: 1rem;">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 600; color: #374151; font-size: 0.85rem;">{{ id_ex }}</span>
+                                        <span style="font-size: 0.75rem; color: #9ca3af;">{{ tipo }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-bottom: 1px solid #f3f4f6; padding: 1rem;">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 600; color: #374151; font-size: 0.85rem;">{{ achado }}</span>
+                                        <span style="font-size: 0.75rem; color: #9ca3af;">{{ subtipo }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-bottom: 1px solid #f3f4f6; padding: 1rem;">
+                                    {% if prob != '—' %}
+                                    <span style="display: inline-block; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 700; font-size: 0.8rem; border: 1px solid {% if pri == 'CRÍTICO' %}#fca5a5{% elif pri == 'ALTA' %}#fdba74{% elif pri == 'MÉDIA' %}#fde047{% else %}#86efac{% endif %}; color: {% if pri == 'CRÍTICO' %}#dc2626{% elif pri == 'ALTA' %}#ea580c{% elif pri == 'MÉDIA' %}#ca8a04{% else %}#16a34a{% endif %};">
+                                        {{ prob }}
+                                    </span>
+                                    {% else %}
+                                    <span style="color: #9ca3af; font-weight: 600; padding-left: 0.8rem;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td style="border-bottom: 1px solid #f3f4f6; padding: 1rem;">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 600; color: #374151; font-size: 0.85rem;">{{ data }}</span>
+                                        <span style="font-size: 0.75rem; color: #9ca3af;">{{ tempo }}</span>
+                                    </div>
+                                </td>
+                                <td style="text-align: right; padding-right: 2rem; border-bottom: 1px solid #f3f4f6;">
+                                    <a href="{{ url_for('detalhes_exame_demo') }}?id={{ id_ex }}&paciente={{ paciente | urlencode }}&sexo={{ sexo | urlencode }}&doenca={{ achado | urlencode }}&prioridade={{ pri | urlencode }}&prob={{ prob | urlencode }}&data={{ data | urlencode }}"
+                                       class="ex-btn-acao" title="Visualizar" style="border-radius: 50%;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINAÇÃO -->
+                <div class="ex-paginacao" style="margin-top: 0; border-radius: 0 0 14px 14px; border: 1px solid #f0f0f0; border-top: 1px solid #f0f0f0; box-shadow: 0 1px 4px rgba(0,0,0,.06);">
+                    <span class="ex-pag-info" style="font-size: 0.85rem;">Mostrando <strong style="color:#6b7280; font-weight:500;">1 a 8 de 60</strong> exames</span>
+
+                    <div class="ex-pag-controles">
+                        <button class="ex-pag-btn" disabled><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></button>
+                        <button class="ex-pag-btn ex-pag-btn-ativo" style="background:#fff; color:#1f2937; border-color:#e5e7eb;">1</button>
+                        <button class="ex-pag-btn">2</button>
+                        <button class="ex-pag-btn">3</button>
+                        <button class="ex-pag-btn">4</button>
+                        <button class="ex-pag-btn">5</button>
+                        <span class="ex-pag-ellipsis">...</span>
+                        <button class="ex-pag-btn">8</button>
+                        <button class="ex-pag-btn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></button>
+                    </div>
+
+                    <div class="ex-pag-porpagina">
+                        <select class="ex-pag-select" style="padding: 0.4rem 2rem 0.4rem 0.8rem; font-size: 0.85rem; color: #6b7280; font-weight: 500; background-color: #fff;">
+                            <option value="8" selected>8 por página</option>
+                            <option value="16">16 por página</option>
+                            <option value="24">24 por página</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        {% include 'partials/rodape.html' %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+</body>
+</html>

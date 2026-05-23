@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Exame - LifeAI</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-dashboard.css') }}">
+</head>
+<body class="pagina-aplicacao">
+    <!-- Barra Lateral -->
+    {% include 'partials/barra_lateral.html' %}
+
+    <div class="area-conteudo">
+        <!-- Barra Superior -->
+        {% include 'partials/barra_superior.html' %}
+
+        <!-- Conteúdo Principal -->
+        <main class="conteudo-principal">
+            <!-- Título da Página -->
+               <!-- Título -->
+            <div class="ex-titulo">
+                <h1 class="ex-h1">Novo Exame</h1>
+                <p class="ex-sub">Envie uma imagem radiológica para análise com IA</p>
+            </div>
+
+
+            <div class="container-novo-exame" style="max-width: 100%;">
+                <div class="grade-novo-exame{% if resultado_analise %} com-resultado{% endif %}">
+                    <!-- Formulário -->
+                    <div class="coluna-formulario" style="max-width: 100%;">
+                        <div class="card-formulario">
+                            <form method="POST" action="{{ url_for('novo_exame') }}" enctype="multipart/form-data" class="formulario-novo-exame" id="formularioNovoExame">
+                                <!-- Upload da Imagem -->
+                                <fieldset class="fieldset-formulario">
+                                    <legend class="legenda-fieldset">Imagem do Exame</legend>
+
+                                    <div class="area-upload" id="areaUpload">
+                                        <svg class="icone-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3v-7"/>
+                                        </svg>
+                                        <h4 class="titulo-upload">Arraste a imagem aqui ou clique</h4>
+                                        <p class="descricao-upload">Formatos: DICOM, PNG, JPG | Tamanho máximo: 50MB</p>
+                                        <input 
+                                            type="file" 
+                                            id="arquivo_exame" 
+                                            name="arquivo_exame" 
+                                            class="campo-arquivo-oculto" 
+                                            accept="image/*,.dcm"
+                                        >
+                                    </div>
+
+                                    <div class="preview-imagem" id="previewImagem" style="display: none;">
+                                        <img id="imagemPreview" src="" alt="Preview">
+                                        <button type="button" class="botao-remover-imagem" id="btnRemoverImagem">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </fieldset>
+
+                                <!-- Dados do Paciente -->
+                                <fieldset class="fieldset-formulario">
+                                    <legend class="legenda-fieldset">Dados do Paciente</legend>
+
+                                    <div class="linha-campos">
+                                        <div class="grupo-campo grupo-campo-cheio">
+                                            <label for="nome_paciente" class="rotulo-campo">Nome Completo *</label>
+                                            <input 
+                                                type="text" 
+                                                id="nome_paciente" 
+                                                name="nome_paciente" 
+                                                class="campo-entrada" 
+                                                placeholder="João da Silva Santos"
+                                                required
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="linha-campos">
+                                        <div class="grupo-campo">
+                                            <label for="cpf_paciente" class="rotulo-campo">CPF *</label>
+                                            <input 
+                                                type="text" 
+                                                id="cpf_paciente" 
+                                                name="cpf_paciente" 
+                                                class="campo-entrada" 
+                                                placeholder="000.000.000-00"
+                                                required
+                                            >
+                                        </div>
+                                        <div class="grupo-campo">
+                                            <label for="data_nascimento" class="rotulo-campo">Data de Nascimento *</label>
+                                            <input 
+                                                type="date" 
+                                                id="data_nascimento" 
+                                                name="data_nascimento" 
+                                                class="campo-entrada"
+                                                required
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="linha-campos">
+                                        <div class="grupo-campo">
+                                            <label for="sexo" class="rotulo-campo">Sexo *</label>
+                                            <select id="sexo" name="sexo" class="campo-entrada" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="masculino">Masculino</option>
+                                                <option value="feminino">Feminino</option>
+                                                <option value="outro">Outro</option>
+                                            </select>
+                                        </div>
+                                        <div class="grupo-campo">
+                                            <label for="hospital" class="rotulo-campo">Hospital/Unidade *</label>
+                                            <input 
+                                                type="text" 
+                                                id="hospital" 
+                                                name="hospital" 
+                                                class="campo-entrada" 
+                                                placeholder="Hospital Clínico Central"
+                                                value="{{ hospital }}"
+                                                required
+                                            >
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <!-- Informações Médicas -->
+                                <fieldset class="fieldset-formulario">
+                                    <legend class="legenda-fieldset">Informações Médicas</legend>
+
+                                    <div class="grupo-campo">
+                                        <label for="sintomas" class="rotulo-campo">Sintomas Relatados</label>
+                                        <textarea 
+                                            id="sintomas" 
+                                            name="sintomas" 
+                                            class="campo-textarea" 
+                                            placeholder="Tosse, falta de ar, dor no peito..."
+                                            rows="3"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="grupo-campo">
+                                        <label for="observacoes" class="rotulo-campo">Observações Médicas</label>
+                                        <textarea 
+                                            id="observacoes" 
+                                            name="observacoes" 
+                                            class="campo-textarea" 
+                                            placeholder="Histórico do paciente, comorbidades..."
+                                            rows="3"
+                                        ></textarea>
+                                    </div>
+                                </fieldset>
+
+                               
+
+                                <!-- Botões -->
+                                <div class="grupo-botoes-formulario">
+                                    <button type="button" class="botao botao-secundario" id="btnCancelar">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="botao botao-primario" id="btnAnalisarIA">
+                                        <svg class="icone-botao" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 12 14.6V9a2 2 0 10-4 0v.393a3.374 3.374 0 001.371 2.708l-.548.547z"/>
+                                        </svg>
+                                        Analisar com IA
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Resultado da Análise -->
+                    {% if resultado_analise %}
+                    <div class="coluna-resultado">
+                        <div class="card-resultado">
+                            <!-- Indicador de Sucesso -->
+                            <div class="indicador-sucesso">
+                                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                                    <circle cx="50" cy="50" r="45" class="circle-sucesso"/>
+                                    <path class="checkmark" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" d="M30 50l15 15 25-25"/>
+                                </svg>
+                            </div>
+
+                            <h3 class="titulo-resultado">Análise Concluída</h3>
+                            <p class="descricao-resultado">Resultado da análise com IA</p>
+
+                            <!-- Resultado Principal -->
+                            <div class="bloco-resultado-principal">
+                                <div class="linha-resultado">
+                                    <span class="label-resultado">Gravidade:</span>
+                                    <span class="valor-resultado">{{ resultado_analise.gravidade }}</span>
+                                </div>
+                                <div class="indicador-percentual-resultado">
+                                    <div class="barra-percentual">
+                                        <div class="preenchimento-percentual" style="width: {{ resultado_analise.percentual_risco }}%"></div>
+                                    </div>
+                                    <span class="texto-percentual">{{ resultado_analise.percentual_risco }}% de risco</span>
+                                </div>
+                            </div>
+
+                            <!-- Prioridade -->
+                            <div class="secao-prioridade">
+                                <h4 class="titulo-secao-resultado">Prioridade</h4>
+                                <div class="badge-prioridade {% if resultado_analise.prioridade == 'CRÍTICO' %}badge-critica{% elif resultado_analise.prioridade == 'URGENTE' %}badge-urgente{% elif resultado_analise.prioridade == 'ATENÇÃO' %}badge-atencao{% else %}badge-normal{% endif %}">
+                                    {{ resultado_analise.prioridade }}
+                                </div>
+                            </div>
+
+                            <!-- Recomendação -->
+                            <div class="secao-recomendacao">
+                                <h4 class="titulo-secao-resultado">Recomendação Inicial</h4>
+                                <p class="texto-recomendacao">{{ resultado_analise.recomendacao }}</p>
+                            </div>
+
+                            <!-- Tempo Estimado -->
+                            <div class="secao-tempo">
+                                <h4 class="titulo-secao-resultado">Tempo Estimado de Atendimento</h4>
+                                <div class="valor-tempo">{{ resultado_analise.tempo_estimado }}</div>
+                            </div>
+
+                            <!-- Botões de Ação -->
+                            <div class="grupo-botoes-resultado">
+                                <button type="button" class="botao botao-secundario" id="btnNovoExame">
+                                    Novo Exame
+                                </button>
+                                <a href="{{ url_for('fila_prioridade') }}" class="botao botao-primario">
+                                    Ver Fila
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+
+        <!-- Rodapé -->
+        {% include 'partials/rodape.html' %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+</body>
+</html>

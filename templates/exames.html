@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exames - LifeAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-paginas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-utilitarios.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo-dashboard.css') }}">
+</head>
+<body class="pagina-aplicacao">
+    {% include 'partials/barra_lateral.html' %}
+
+    <div class="area-conteudo">
+        {% include 'partials/barra_superior.html' %}
+
+        <main class="conteudo-principal">
+
+            <!-- Título -->
+            <div class="ex-titulo">
+                <h1 class="ex-h1">Exames</h1>
+                <p class="ex-sub">Lista de Exames realizados</p>
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="ex-stats">
+                <div class="ex-stat-card ex-stat-red">
+                    <div class="ex-stat-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="ex-stat-body">
+                        <span class="ex-stat-label">Críticos</span>
+                        <span class="ex-stat-value">12</span>
+                        <span class="ex-stat-desc">Precisam de atenção imediata</span>
+                    </div>
+                </div>
+
+                <div class="ex-stat-card ex-stat-amber">
+                    <div class="ex-stat-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ex-stat-body">
+                        <span class="ex-stat-label">Alta Prioridade</span>
+                        <span class="ex-stat-value">18</span>
+                        <span class="ex-stat-desc">Análise prioritária</span>
+                    </div>
+                </div>
+
+                <div class="ex-stat-card ex-stat-green">
+                    <div class="ex-stat-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ex-stat-body">
+                        <span class="ex-stat-label">Normais</span>
+                        <span class="ex-stat-value">45</span>
+                        <span class="ex-stat-desc">Sem alterações relevantes</span>
+                    </div>
+                </div>
+
+                <div class="ex-stat-card ex-stat-blue">
+                    <div class="ex-stat-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="ex-stat-body">
+                        <span class="ex-stat-label">Totais Hoje</span>
+                        <span class="ex-stat-value">75</span>
+                        <span class="ex-stat-desc">Exames realizados</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BARRA DE BUSCA + FILTROS -->
+            <div class="ex-toolbar">
+                <div class="ex-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="buscarExame" placeholder="Buscar por paciente, ID do exame ou laudo...">
+                </div>
+                <div class="ex-toolbar-right">
+                    <button class="ex-btn-filtro" id="btnFiltros">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                        </svg>
+                        Filtros
+                    </button>
+                    <div class="ex-select-wrap">
+                        <select id="filtroOrdem" class="ex-select">
+                            <option>Data: Mais recentes</option>
+                            <option>Data: Mais antigos</option>
+                            <option>Prioridade: Alta</option>
+                            <option>Prioridade: Baixa</option>
+                        </select>
+                    </div>
+                    <button class="ex-btn-export" id="btnExportar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABELA -->
+            <div class="ex-table-wrap">
+                <table class="ex-table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>ID do Exame</th>
+                            <th>Data</th>
+                            <th>Achado Principal</th>
+                            <th>Prioridade</th>
+                            <th>Status</th>
+                            <th>Enviado em</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabela">
+                        {% set demo_exames = [
+                            ('João Silva, 58 anos',     'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Pneumonia',       'ALTA',    'Concluído',  '10:32'),
+                            ('Maria Oliveira, 67 anos', 'EXM-2025-05-24-1021', '24/05/2025 - 10:21', 'Pneumonia',       'CRÍTICA',  'Em Análise', '10:32'),
+                            ('José Santos, 45 anos',    'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Derrame Pleural', 'ALTA',    'Em Análise', '10:32'),
+                            ('Ana Costa, 71 anos',      'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Consolidação',    'BAIXA',   'Em Análise', '10:32'),
+                            ('Carlos Lima, 52 anos',    'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Consolidação',    'MÉDIA',   'Concluído',  '10:32'),
+                            ('Fernanda Rocha, 36 anos', 'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Edema',           'ALTA',    'Concluído',  '10:32'),
+                            ('Paulo Mendes, 60 anos',   'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Edema',           'ALTA',    'Concluído',  '10:32'),
+                            ('Juliana Pereira, 28 anos','EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Sem alterações',  'ALTA',    'Concluído',  '10:32'),
+                            ('Roberto Alves, 64 anos',  'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Pneumonia',       'ALTA',    'Concluído',  '10:32'),
+                            ('Mariana Souza, 33 anos',  'EXM-2025-05-24-1032', '24/05/2025 - 10:32', 'Edema',           'ALTA',    'Concluído',  '10:32')
+                        ] %}
+                        {% if exames %}
+                            {% for exame in exames %}
+                            <tr class="ex-row">
+                                <td class="ex-td-paciente">{{ exame.nome_paciente }}</td>
+                                <td class="ex-td-id">EXM-2025-{{ exame.data_registro | replace('/', '-') | truncate(10, True, '') }}</td>
+                                <td>{{ exame.data_registro }}</td>
+                                <td>{{ exame.resultado.gravidade }}</td>
+                                <td>
+                                    <span class="ex-badge
+                                        {% if exame.resultado.prioridade == 'CRÍTICO' %}ex-badge-critica
+                                        {% elif exame.resultado.prioridade == 'URGENTE' %}ex-badge-alta
+                                        {% elif exame.resultado.prioridade == 'ATENÇÃO' %}ex-badge-media
+                                        {% else %}ex-badge-baixa{% endif %}">
+                                        {{ exame.resultado.prioridade }}
+                                    </span>
+                                </td>
+                                <td><span class="ex-status ex-status-concluido">Concluído</span></td>
+                                <td>{{ exame.data_registro.split(' ')[-1] if ' ' in exame.data_registro else '—' }}</td>
+                                <td>
+                                    <a href="{{ url_for('detalhes_exame', id_exame=exame.id) }}" class="ex-btn-acao" title="Visualizar">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            {% for paciente, id_ex, data, achado, prioridade, status, hora in demo_exames %}
+                            <tr class="ex-row">
+                                <td class="ex-td-paciente">{{ paciente }}</td>
+                                <td class="ex-td-id">{{ id_ex }}</td>
+                                <td>{{ data }}</td>
+                                <td>{{ achado }}</td>
+                                <td>
+                                    <span class="ex-badge
+                                        {% if prioridade == 'CRÍTICA' %}ex-badge-critica
+                                        {% elif prioridade == 'ALTA' %}ex-badge-alta
+                                        {% elif prioridade == 'MÉDIA' %}ex-badge-media
+                                        {% else %}ex-badge-baixa{% endif %}">
+                                        {{ prioridade }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="ex-status {% if status == 'Concluído' %}ex-status-concluido{% else %}ex-status-analise{% endif %}">
+                                        {{ status }}
+                                    </span>
+                                </td>
+                                <td>{{ hora }}</td>
+                                <td>
+                                    <a href="{{ url_for('detalhes_exame_demo') }}?id={{ id_ex }}&paciente={{ paciente | urlencode }}&doenca={{ achado | urlencode }}&prioridade={{ prioridade | urlencode }}&prob=78&data={{ data | urlencode }}"
+                                       class="ex-btn-acao" title="Visualizar">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINAÇÃO -->
+          <!-- PAGINAÇÃO -->
+                <div class="ex-paginacao" style="margin-top: 0; border-radius: 0 0 14px 14px; border: 1px solid #f0f0f0; border-top: 1px solid #f0f0f0; box-shadow: 0 1px 4px rgba(0,0,0,.06);">
+                    <span class="ex-pag-info" style="font-size: 0.85rem;">Mostrando <strong style="color:#6b7280; font-weight:500;">1 a 8 de 60</strong> exames</span>
+
+                    <div class="ex-pag-controles">
+                        <button class="ex-pag-btn" disabled><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></button>
+                        <button class="ex-pag-btn ex-pag-btn-ativo" style="background:#fff; color:#1f2937; border-color:#e5e7eb;">1</button>
+                        <button class="ex-pag-btn">2</button>
+                        <button class="ex-pag-btn">3</button>
+                        <button class="ex-pag-btn">4</button>
+                        <button class="ex-pag-btn">5</button>
+                        <span class="ex-pag-ellipsis">...</span>
+                        <button class="ex-pag-btn">8</button>
+                        <button class="ex-pag-btn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></button>
+                    </div>
+
+                    <div class="ex-pag-porpagina">
+                        <select class="ex-pag-select" style="padding: 0.4rem 2rem 0.4rem 0.8rem; font-size: 0.85rem; color: #6b7280; font-weight: 500; background-color: #fff;">
+                            <option value="8" selected>8 por página</option>
+                            <option value="16">16 por página</option>
+                            <option value="24">24 por página</option>
+                        </select>
+                    </div>
+                </div>
+
+        </main>
+
+        {% include 'partials/rodape.html' %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+    <script>
+    (function () {
+        /* ── Estado ───────────────────────────────────────────── */
+        let paginaAtual = 1;
+        let itensPorPagina = 10;
+        let linhasVisiveis = []; // linhas que passam no filtro de busca
+
+        const todasLinhas = Array.from(document.querySelectorAll('#corpoTabela tr.ex-row'));
+
+        /* ── Elementos UI ─────────────────────────────────────── */
+        const elDe       = document.getElementById('exPagDe');
+        const elAte      = document.getElementById('exPagAte');
+        const elTotal    = document.getElementById('exPagTotal');
+        const elControles= document.getElementById('exPagControles');
+        const elQtd      = document.getElementById('exPagQtd');
+        const elBusca    = document.getElementById('buscarExame');
+
+        /* ── Funções principais ───────────────────────────────── */
+        function filtrar() {
+            const termo = elBusca.value.toLowerCase().trim();
+            linhasVisiveis = todasLinhas.filter(function (linha) {
+                return linha.textContent.toLowerCase().includes(termo);
+            });
+            paginaAtual = 1;
+            renderizar();
+        }
+
+        function renderizar() {
+            const total      = linhasVisiveis.length;
+            const totalPags  = Math.max(1, Math.ceil(total / itensPorPagina));
+            paginaAtual      = Math.min(paginaAtual, totalPags);
+            const inicio     = (paginaAtual - 1) * itensPorPagina;
+            const fim        = Math.min(inicio + itensPorPagina, total);
+
+            // Mostrar/esconder linhas
+            todasLinhas.forEach(function (linha) { linha.style.display = 'none'; });
+            linhasVisiveis.forEach(function (linha, idx) {
+                linha.style.display = (idx >= inicio && idx < fim) ? '' : 'none';
+            });
+
+            // Atualizar info
+            elTotal.textContent = total;
+            elDe.textContent    = total === 0 ? 0 : inicio + 1;
+            elAte.textContent   = fim;
+
+            // Renderizar botões de página
+            renderizarBotoes(totalPags);
+        }
+
+        function renderizarBotoes(totalPags) {
+            elControles.innerHTML = '';
+
+            // Botão anterior
+            var btnPrev = criarBtn(null, paginaAtual <= 1);
+            btnPrev.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>';
+            btnPrev.setAttribute('aria-label', 'Página anterior');
+            btnPrev.addEventListener('click', function () { irPara(paginaAtual - 1); });
+            elControles.appendChild(btnPrev);
+
+            // Lógica de páginas com reticências
+            var paginas = calcularPaginas(paginaAtual, totalPags);
+            paginas.forEach(function (p) {
+                if (p === '...') {
+                    var span = document.createElement('span');
+                    span.className = 'ex-pag-ellipsis';
+                    span.textContent = '...';
+                    elControles.appendChild(span);
+                } else {
+                    var btn = criarBtn(p, false);
+                    btn.textContent = p;
+                    if (p === paginaAtual) btn.classList.add('ex-pag-btn-ativo');
+                    btn.addEventListener('click', (function (pg) {
+                        return function () { irPara(pg); };
+                    })(p));
+                    elControles.appendChild(btn);
+                }
+            });
+
+            // Botão próximo
+            var btnNext = criarBtn(null, paginaAtual >= totalPags);
+            btnNext.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>';
+            btnNext.setAttribute('aria-label', 'Próxima página');
+            btnNext.addEventListener('click', function () { irPara(paginaAtual + 1); });
+            elControles.appendChild(btnNext);
+        }
+
+        function calcularPaginas(atual, total) {
+            if (total <= 7) {
+                return Array.from({ length: total }, function (_, i) { return i + 1; });
+            }
+            var paginas = [];
+            if (atual <= 4) {
+                paginas = [1, 2, 3, 4, 5, '...', total];
+            } else if (atual >= total - 3) {
+                paginas = [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+            } else {
+                paginas = [1, '...', atual - 1, atual, atual + 1, '...', total];
+            }
+            return paginas;
+        }
+
+        function criarBtn(pagina, desabilitado) {
+            var btn = document.createElement('button');
+            btn.className = 'ex-pag-btn';
+            btn.disabled  = desabilitado;
+            return btn;
+        }
+
+        function irPara(pagina) {
+            var totalPags = Math.max(1, Math.ceil(linhasVisiveis.length / itensPorPagina));
+            if (pagina < 1 || pagina > totalPags) return;
+            paginaAtual = pagina;
+            renderizar();
+            // Scroll suave ao topo da tabela
+            var tabela = document.querySelector('.ex-table-wrap');
+            if (tabela) tabela.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        /* ── Eventos ──────────────────────────────────────────── */
+        elBusca.addEventListener('input', filtrar);
+        elQtd.addEventListener('change', function () {
+            itensPorPagina = parseInt(this.value, 10);
+            paginaAtual = 1;
+            renderizar();
+        });
+
+        /* ── Inicialização ────────────────────────────────────── */
+        filtrar(); // popula linhasVisiveis e renderiza
+    })();
+    </script>
+</body>
+</html>
