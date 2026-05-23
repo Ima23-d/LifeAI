@@ -71,7 +71,7 @@
 /* ── LAYOUT PRINCIPAL DO PAINEL ── */
 .painel-corpo {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1fr 480px;
     gap: 1.25rem;
 }
 
@@ -82,10 +82,7 @@
     padding: 1.4rem;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
     border: 1px solid #f0f0f0;
-
-    display: inline-block;
-    width: auto;
-    min-width: 900px;
+    width: 100%;
 }
 
 .card-analise__titulo {
@@ -97,8 +94,8 @@
 
 .analise-grid {
     display: grid;
-    grid-template-columns: minmax(350px, 450px) 1fr;
-    gap: 2rem;
+    grid-template-columns: minmax(240px, 450px) 1fr;
+    gap: 1.5rem;
 
     width: 100%;
     max-width: 1400px;
@@ -267,26 +264,31 @@
 .card-lateral {
     background: #fff;
     border-radius: 14px;
-    padding: 1.2rem 1.3rem;
+    padding: 1.5rem 1.6rem;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
     border: 1px solid #f0f0f0;
+
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
 }
 
 .lateral-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .lateral-header__titulo {
-    font-size: .88rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #1f2937;
 }
 
 .lateral-header__link {
-    font-size: .75rem;
+    font-size: 0.82rem;
     color: #2dc2bd;
     font-weight: 600;
     text-decoration: none;
@@ -300,14 +302,14 @@
 .paciente-lista {
     display: flex;
     flex-direction: column;
-    gap: .6rem;
+    gap: .75rem;
 }
 
 .paciente-item {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    padding: .5rem 0;
+    gap: .9rem;
+    padding: .65rem 0;
     border-bottom: 1px solid #f9fafb;
 }
 
@@ -316,8 +318,8 @@
 }
 
 .paciente-avatar {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background: #f3f4f6;
     display: flex;
@@ -328,8 +330,8 @@
 }
 
 .paciente-avatar svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
 }
 
 .paciente-info {
@@ -338,7 +340,7 @@
 }
 
 .paciente-nome {
-    font-size: .82rem;
+    font-size: 0.92rem;
     font-weight: 600;
     color: #1f2937;
     white-space: nowrap;
@@ -347,7 +349,7 @@
 }
 
 .paciente-sub {
-    font-size: .72rem;
+    font-size: 0.8rem;
     color: #9ca3af;
 }
 
@@ -355,9 +357,9 @@
 .badge-critica {
     background: #fef2f2;
     color: #dc2626;
-    padding: .2rem .55rem;
+    padding: .25rem .65rem;
     border-radius: 5px;
-    font-size: .68rem;
+    font-size: .75rem;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -365,9 +367,9 @@
 .badge-alta-p {
     background: #fff7ed;
     color: #ea580c;
-    padding: .2rem .55rem;
+    padding: .25rem .65rem;
     border-radius: 5px;
-    font-size: .68rem;
+    font-size: .75rem;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -375,9 +377,9 @@
 .badge-media {
     background: #fefce8;
     color: #ca8a04;
-    padding: .2rem .55rem;
+    padding: .25rem .65rem;
     border-radius: 5px;
-    font-size: .68rem;
+    font-size: .75rem;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -385,9 +387,9 @@
 .badge-baixa {
     background: #f0fdf4;
     color: #16a34a;
-    padding: .2rem .55rem;
+    padding: .25rem .65rem;
     border-radius: 5px;
-    font-size: .68rem;
+    font-size: .75rem;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -397,11 +399,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: .9rem;
+    margin-bottom: 1.1rem;
 }
 
 .chart-hoje {
-    font-size: .72rem;
+    font-size: 0.8rem;
     color: #9ca3af;
     font-weight: 500;
 }
@@ -409,39 +411,40 @@
 .chart-body {
     display: flex;
     align-items: center;
-    gap: 1.2rem;
+    gap: 2rem;
 }
 
 .donut-wrapper {
     position: relative;
-    width: 110px;
-    height: 110px;
+    width: 130px;
+    height: 130px;
     flex-shrink: 0;
 }
 
 .donut-wrapper canvas {
-    width: 110px !important;
-    height: 110px !important;
+    width: 130px !important;
+    height: 130px !important;
 }
 
 .chart-legenda {
     display: flex;
     flex-direction: column;
-    gap: .55rem;
+    gap: .7rem;
+    flex-grow: 1;
 }
 
 .legenda-item {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    font-size: .8rem;
+    gap: .6rem;
+    font-size: 0.88rem;
     color: #374151;
     font-weight: 500;
 }
 
 .legenda-dot {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     flex-shrink: 0;
 }
@@ -704,7 +707,7 @@
    RESPONSIVO
    =============================================== */
 
-@media (max-width: 1100px) {
+@media (max-width: 1250px) {
     .painel-corpo {
         grid-template-columns: 1fr;
     }

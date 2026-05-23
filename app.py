@@ -4,8 +4,7 @@ from urllib.parse import quote as url_quote
 import json
 
 app = Flask(__name__)
-# Colocar no env
-app.secret_key = 'SECRET_KEY'
+app.secret_key = 'sua_chave_secreta_aqui_mudar_em_producao'
 
 # Filtro Jinja2 para codificar valores em URLs
 app.jinja_env.filters['urlencode'] = lambda v: url_quote(str(v)) if v else ''
