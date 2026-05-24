@@ -4,14 +4,15 @@ from urllib.parse import quote as url_quote
 import json
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_aqui_mudar_em_producao'
+# Colocar no env
+app.secret_key = 'SECRET_KEY'
 
 # Filtro Jinja2 para codificar valores em URLs
 app.jinja_env.filters['urlencode'] = lambda v: url_quote(str(v)) if v else ''
 
 
 # ==========================================
-# DADOS DE EXEMPLO (Substituir por banco de dados real)
+# DADOS DE EXEMPLO 
 # ==========================================
 
 usuarios_autenticados = {}
@@ -37,7 +38,6 @@ def pagina_login():
         email = request.form.get('email')
         senha = request.form.get('senha')
         
-        # Validação simples (substituir por banco de dados real)
         if email and senha:
             session['usuario_id'] = email
             session['nome_usuario'] = 'Dr. João Silva'
@@ -69,7 +69,6 @@ def pagina_cadastro():
         if senha != confirmar_senha:
             return render_template('cadastro.html', erro='As senhas não coincidem')
         
-        # Registrar usuário (substituir por banco de dados real)
         usuarios_autenticados[email] = {
             'nome': nome_completo,
             'cpf': cpf,
@@ -137,7 +136,6 @@ def novo_exame():
         sintomas = request.form.get('sintomas')
         observacoes = request.form.get('observacoes')
         
-        # Simular análise de IA (substituir por API real)
         resultado_analise = {
             'gravidade': 'Urgente',
             'percentual_risco': 78,
@@ -215,8 +213,7 @@ def detalhes_exame_demo():
     """Página de detalhes para exames de demonstração (sem banco de dados)"""
     if 'usuario_id' not in session:
         return redirect(url_for('pagina_login'))
-
-    # Monta um objeto exame a partir dos query params passados pelos botões de olho
+        
     exame_demo = {
         'id': request.args.get('id', 'EXM-2025-0524-0001'),
         'nome_paciente': request.args.get('paciente', 'Paciente Demonstração'),
@@ -322,13 +319,12 @@ def pagina_perfil():
 # ==========================================
 # ROTAS API (AJAX)
 # ==========================================
-
+# SIMULADO
 @app.route('/api/analisar-exame', methods=['POST'])
 def api_analisar_exame():
     """API para análise de exame com IA"""
     dados = request.json
     
-    # Simular análise de IA
     resultado = {
         'sucesso': True,
         'gravidade': 'Urgente',
