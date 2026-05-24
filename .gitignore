@@ -48,9 +48,6 @@ config.local.py
 .DS_Store
 Thumbs.db
 
-# VS Code local state
-.vscode/
-
 # Local ML artifacts and weights
 MODELO/*.pt
 MODELO/*.pth

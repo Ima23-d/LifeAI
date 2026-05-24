@@ -1,0 +1,10 @@
+[
+  {
+    "id": "flask-python",
+    "title": "flask-python",
+    "path": ".vscode/agents/flask-python/SKILL.md",
+    "tags": ["flask", "python", "backend"],
+    "description": "Guidelines for Flask/Python development used by the VS Code agent.",
+    "canonical_url": "https://explainx.ai/skills/mindrally/skills/flask-python"
+  }
+]
