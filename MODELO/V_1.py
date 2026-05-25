@@ -63,17 +63,16 @@ img_path = os.path.join(
 
 img = skimage.io.imread(img_path)
 
-# normalização correta
 img = xrv.datasets.normalize(img, 255)
 
-# converter para escala cinza
+
 if len(img.shape) > 2:
     img = img.mean(2)
 
-# formato correto
+
 img = img[None, :, :]
 
-# preprocessamento
+
 transform = transforms.Compose([
     xrv.datasets.XRayCenterCrop(),
     xrv.datasets.XRayResizer(224)
@@ -81,7 +80,7 @@ transform = transforms.Compose([
 
 img = transform(img)
 
-# tensor
+
 img = torch.from_numpy(img).float().unsqueeze(0)
 
 # ==========================================
@@ -92,10 +91,6 @@ with torch.no_grad():
 
     outputs = model(img)
 
-# IMPORTANTE:
-# Algumas versões do TorchXRayVision
-# já retornam probabilidades.
-# Então NÃO aplicar sigmoid novamente.
 
 outputs = outputs[0].cpu().numpy()
 
@@ -107,17 +102,15 @@ results = []
 
 for pathology, score in zip(model.pathologies, outputs):
 
-    # ignorar classes vazias
+   
     if pathology == "":
         continue
 
-    # ignorar classes pouco confiáveis
     if pathology not in VALID_PATHOLOGIES:
         continue
 
     score = float(score)
 
-    # limitar valores
     score = np.clip(score, 0, 1)
 
     if score >= THRESHOLD:
