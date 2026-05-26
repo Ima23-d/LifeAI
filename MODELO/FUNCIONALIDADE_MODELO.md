@@ -1,4 +1,4 @@
-# 🩻 Sistema de Diagnóstico Pulmonar com IA
+# Sistema de Diagnóstico Pulmonar com IA
 
 Sistema de Inteligência Artificial desenvolvido em Python para análise de radiografias de tórax utilizando Deep Learning e visão computacional médica.
 
@@ -6,7 +6,7 @@ O projeto utiliza a biblioteca TorchXRayVision juntamente com uma rede neural co
 
 ---
 
-# 🚀 Funcionalidades
+# Funcionalidades
 
 - Análise automática de imagens de raio-X
 - Detecção de possíveis doenças pulmonares
@@ -18,7 +18,7 @@ O projeto utiliza a biblioteca TorchXRayVision juntamente com uma rede neural co
 
 ---
 
-# 🧠 Tecnologias Utilizadas
+# Tecnologias Utilizadas
 
 | Tecnologia | Função |
 |---|---|
@@ -31,7 +31,7 @@ O projeto utiliza a biblioteca TorchXRayVision juntamente com uma rede neural co
 
 ---
 
-# 🩺 Doenças Detectadas
+# Doenças Detectadas
 
 O sistema foi configurado para detectar:
 
@@ -47,7 +47,7 @@ O sistema foi configurado para detectar:
 
 ---
 
-# 🧠 Modelo de Inteligência Artificial
+# Modelo de Inteligência Artificial
 
 O projeto utiliza a arquitetura:
 
@@ -73,7 +73,7 @@ A rede neural é especializada em:
 
 ---
 
-# ⚙️ Fluxo do Algoritmo
+# Fluxo do Algoritmo
 
 ```text
 Imagem de Raio-X
@@ -97,7 +97,7 @@ Resultado Final
 
 ---
 
-# 📂 Estrutura do Projeto
+# Estrutura do Projeto
 
 ```text
 projeto/
@@ -110,7 +110,7 @@ projeto/
 
 ---
 
-# 📥 Instalação
+# Instalação
 
 ## 1. Clone o repositório
 
@@ -136,7 +136,7 @@ pip install -r requirements.txt
 
 ---
 
-# 📦 Dependências
+# Dependências
 
 ```txt
 torch
@@ -148,7 +148,7 @@ scikit-image
 
 ---
 
-# ▶️ Como Executar
+# Como Executar
 
 Coloque sua imagem de raio-X na pasta do projeto com o nome:
 
@@ -164,7 +164,7 @@ python main.py
 
 ---
 
-# 🧪 Exemplo de Resultado
+# Exemplo de Resultado
 
 ```text
 ===== RESULTADOS =====
@@ -182,7 +182,7 @@ Gravidade: Moderada
 
 ---
 
-# ⚙️ Configurações do Sistema
+# Configurações do Sistema
 
 ## Limite mínimo de confiança
 
@@ -204,7 +204,7 @@ Mostra apenas os 5 diagnósticos mais prováveis.
 
 ---
 
-# 🔬 Pré-processamento da Imagem
+# Pré-processamento da Imagem
 
 O sistema realiza automaticamente:
 
@@ -242,7 +242,7 @@ Formato esperado pela DenseNet121.
 
 ---
 
-# 📊 Classificação da Gravidade
+# Classificação da Gravidade
 
 | Probabilidade | Gravidade |
 |---|---|
@@ -252,7 +252,7 @@ Formato esperado pela DenseNet121.
 
 ---
 
-# 🧠 Tipo de Inteligência Artificial
+# Tipo de Inteligência Artificial
 
 O sistema utiliza:
 
@@ -270,7 +270,7 @@ As CNNs conseguem:
 
 ---
 
-# ✅ Pontos Fortes
+# Pontos Fortes
 
 - Análise rápida
 - Automatização da triagem médica
@@ -281,7 +281,7 @@ As CNNs conseguem:
 
 ---
 
-# ⚠️ Limitações
+# Limitações
 
 Este sistema:
 
@@ -293,7 +293,7 @@ Este sistema:
 
 ---
 
-# 🚀 Melhorias Futuras
+# Melhorias Futuras
 
 Possíveis melhorias:
 
@@ -309,7 +309,7 @@ Possíveis melhorias:
 
 ---
 
-# 📚 Conceitos Envolvidos
+# Conceitos Envolvidos
 
 - Inteligência Artificial
 - Deep Learning
@@ -320,7 +320,7 @@ Possíveis melhorias:
 
 ---
 
-# 👨‍💻 Autor
+# Autor
 
 Projeto desenvolvido para estudos em:
 
@@ -331,7 +331,7 @@ Projeto desenvolvido para estudos em:
 
 ---
 
-# 📜 Licença
+# Licença
 
 Este projeto possui finalidade educacional e de pesquisa.
 
