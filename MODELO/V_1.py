@@ -1,19 +1,22 @@
+import os
 import torch
-import torchxrayvision as xrv
+import numpy as np
 import skimage.io
 import torchvision.transforms as transforms
-import numpy as np
-import os
+import torchxrayvision as xrv
 
-# ==========================================
-# CONFIGURAÇÃO
-# ==========================================
+# ==========================================================
+# CONFIGURAÇÕES DO SISTEMA
+# ==========================================================
 
-THRESHOLD = 0.50
-TOP_K = 5
+# Probabilidade mínima para considerar uma doença
+LIMIAR_PROBABILIDADE = 0.50
 
-# Classes mais confiáveis
-VALID_PATHOLOGIES = [
+# Quantidade máxima de resultados exibidos
+TOTAL_RESULTADOS = 5
+
+# Doenças consideradas mais confiáveis
+DOENCAS_VALIDAS = [
     "Atelectasis",
     "Consolidation",
     "Infiltration",
@@ -23,131 +26,205 @@ VALID_PATHOLOGIES = [
     "Pleural_Thickening"
 ]
 
-# ==========================================
-# GRAVIDADE
-# ==========================================
+# ==========================================================
+# FUNÇÃO DE CLASSIFICAÇÃO DA GRAVIDADE
+# ==========================================================
 
-def classificar_gravidade(score):
+def classificar_gravidade(probabilidade):
+    """
+    Classifica a gravidade com base na probabilidade.
+    """
 
-    if score >= 0.75:
+    if probabilidade >= 0.75:
         return "Grave"
 
-    elif score >= 0.50:
+    elif probabilidade >= 0.50:
         return "Moderada"
 
     else:
         return "Leve"
 
-# ==========================================
-# CARREGAR MODELO
-# ==========================================
 
-print("Carregando modelo...")
+# ==========================================================
+# CARREGAMENTO DO MODELO DE IA
+# ==========================================================
 
-model = xrv.models.DenseNet(
+print("Carregando modelo de inteligência artificial...")
+
+modelo = xrv.models.DenseNet(
     weights="densenet121-res224-nih"
 )
 
-model.eval()
+# Coloca o modelo em modo de inferência
+modelo.eval()
 
-print("Modelo carregado!")
+print("Modelo carregado com sucesso!")
 
-# ==========================================
-# CARREGAR IMAGEM
-# ==========================================
+# ==========================================================
+# CAMINHO DA IMAGEM
+# ==========================================================
 
-img_path = os.path.join(
+caminho_imagem = os.path.join(
     os.path.dirname(__file__),
     "raio-x.png"
 )
 
-img = skimage.io.imread(img_path)
+# ==========================================================
+# LEITURA DA IMAGEM
+# ==========================================================
 
-img = xrv.datasets.normalize(img, 255)
+print("Carregando imagem do raio-X...")
 
+imagem = skimage.io.imread(caminho_imagem)
 
-if len(img.shape) > 2:
-    img = img.mean(2)
+# ==========================================================
+# NORMALIZAÇÃO DA IMAGEM
+# ==========================================================
 
+# Converte os pixels de 0-255 para valores normalizados
+imagem = xrv.datasets.normalize(imagem, 255)
 
-img = img[None, :, :]
+# ==========================================================
+# CONVERSÃO PARA ESCALA DE CINZA
+# ==========================================================
 
+# Caso a imagem seja RGB
+if len(imagem.shape) > 2:
 
-transform = transforms.Compose([
+    # Converte para grayscale
+    imagem = imagem.mean(2)
+
+# ==========================================================
+# AJUSTE DO FORMATO DA IMAGEM
+# ==========================================================
+
+# Adiciona o canal da imagem
+imagem = imagem[None, :, :]
+
+# ==========================================================
+# TRANSFORMAÇÕES DA IMAGEM
+# ==========================================================
+
+transformacoes = transforms.Compose([
+
+    # Recorta o centro da imagem
     xrv.datasets.XRayCenterCrop(),
+
+    # Redimensiona para 224x224
     xrv.datasets.XRayResizer(224)
 ])
 
-img = transform(img)
+imagem = transformacoes(imagem)
 
+# ==========================================================
+# CONVERSÃO PARA TENSOR
+# ==========================================================
 
-img = torch.from_numpy(img).float().unsqueeze(0)
+imagem = torch.from_numpy(imagem)\
+    .float()\
+    .unsqueeze(0)
 
-# ==========================================
-# PREDIÇÃO
-# ==========================================
+# ==========================================================
+# REALIZAR PREDIÇÃO
+# ==========================================================
+
+print("Analisando imagem...")
 
 with torch.no_grad():
 
-    outputs = model(img)
+    saidas_modelo = modelo(imagem)
 
+# Converte para numpy
+saidas_modelo = saidas_modelo[0].cpu().numpy()
 
-outputs = outputs[0].cpu().numpy()
+# ==========================================================
+# PROCESSAMENTO DOS RESULTADOS
+# ==========================================================
 
-# ==========================================
-# RESULTADOS
-# ==========================================
+resultados = []
 
-results = []
+for nome_doenca, probabilidade in zip(
+    modelo.pathologies,
+    saidas_modelo
+):
 
-for pathology, score in zip(model.pathologies, outputs):
-
-   
-    if pathology == "":
+    # Ignora classes vazias
+    if nome_doenca == "":
         continue
 
-    if pathology not in VALID_PATHOLOGIES:
+    # Ignora doenças fora da lista confiável
+    if nome_doenca not in DOENCAS_VALIDAS:
         continue
 
-    score = float(score)
+    # Converte para float
+    probabilidade = float(probabilidade)
 
-    score = np.clip(score, 0, 1)
+    # Limita entre 0 e 1
+    probabilidade = np.clip(
+        probabilidade,
+        0,
+        1
+    )
 
-    if score >= THRESHOLD:
+    # Verifica se passou do limiar
+    if probabilidade >= LIMIAR_PROBABILIDADE:
 
-        gravidade = classificar_gravidade(score)
+        # Classifica gravidade
+        gravidade = classificar_gravidade(
+            probabilidade
+        )
 
-        results.append({
-            "doenca": pathology,
-            "probabilidade": score,
+        # Adiciona ao resultado
+        resultados.append({
+
+            "doenca": nome_doenca,
+
+            "probabilidade": probabilidade,
+
             "gravidade": gravidade
         })
 
-# ordenar
-results = sorted(
-    results,
-    key=lambda x: x["probabilidade"],
+# ==========================================================
+# ORDENAR RESULTADOS
+# ==========================================================
+
+resultados = sorted(
+
+    resultados,
+
+    key=lambda item: item["probabilidade"],
+
     reverse=True
 )
 
-# ==========================================
+# ==========================================================
 # EXIBIR RESULTADOS
-# ==========================================
+# ==========================================================
 
-print("\n===== RESULTADOS =====\n")
+print("\n================ RESULTADOS ================\n")
 
-if len(results) == 0:
+# Nenhuma doença encontrada
+if len(resultados) == 0:
 
-    print("Nenhuma alteração significativa detectada.")
+    print(
+        "Nenhuma alteração significativa detectada."
+    )
 
+# Exibir resultados encontrados
 else:
 
-    for item in results[:TOP_K]:
+    for resultado in resultados[:TOTAL_RESULTADOS]:
 
-        print(f"Doença: {item['doenca']}")
+        print(f"Doença: {resultado['doenca']}")
+
         print(
             f"Probabilidade: "
-            f"{item['probabilidade']*100:.2f}%"
+            f"{resultado['probabilidade'] * 100:.2f}%"
         )
-        print(f"Gravidade: {item['gravidade']}")
-        print("-" * 40)
+
+        print(
+            f"Gravidade: "
+            f"{resultado['gravidade']}"
+        )
+
+        print("-" * 45)
