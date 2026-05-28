@@ -149,20 +149,20 @@
                             {% for exame in exames %}
                             <tr class="ex-row">
                                 <td class="ex-td-paciente">{{ exame.nome_paciente }}</td>
-                                <td class="ex-td-id">EXM-2025-{{ exame.data_registro | replace('/', '-') | truncate(10, True, '') }}</td>
-                                <td>{{ exame.data_registro }}</td>
-                                <td>{{ exame.resultado.gravidade }}</td>
+                                <td class="ex-td-id">EXM-{{ exame.data_registro.strftime('%Y-%m-%d') }}-{{ exame.id }}</td>
+                                <td>{{ exame.data_registro.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ exame.gravidade or '—' }}</td>
                                 <td>
                                     <span class="ex-badge
-                                        {% if exame.resultado.prioridade == 'CRÍTICO' %}ex-badge-critica
-                                        {% elif exame.resultado.prioridade == 'URGENTE' %}ex-badge-alta
-                                        {% elif exame.resultado.prioridade == 'ATENÇÃO' %}ex-badge-media
+                                        {% if exame.prioridade == 'CRÍTICO' %}ex-badge-critica
+                                        {% elif exame.prioridade == 'URGENTE' %}ex-badge-alta
+                                        {% elif exame.prioridade == 'ATENÇÃO' %}ex-badge-media
                                         {% else %}ex-badge-baixa{% endif %}">
-                                        {{ exame.resultado.prioridade }}
+                                        {{ exame.prioridade or 'NORMAL' }}
                                     </span>
                                 </td>
                                 <td><span class="ex-status ex-status-concluido">Concluído</span></td>
-                                <td>{{ exame.data_registro.split(' ')[-1] if ' ' in exame.data_registro else '—' }}</td>
+                                <td>{{ exame.data_registro.strftime('%H:%M') }}</td>
                                 <td>
                                     <a href="{{ url_for('detalhes_exame', id_exame=exame.id) }}" class="ex-btn-acao" title="Visualizar">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -198,7 +198,7 @@
                                 </td>
                                 <td>{{ hora }}</td>
                                 <td>
-                                    <a href="{{ url_for('detalhes_exame_demo') }}?id={{ id_ex }}&paciente={{ paciente | urlencode }}&doenca={{ achado | urlencode }}&prioridade={{ prioridade | urlencode }}&prob=78&data={{ data | urlencode }}"
+                                    <a href="/exames/demo?id={{ id_ex | urlencode }}&paciente={{ paciente | urlencode }}&doenca={{ achado | urlencode }}&prioridade={{ prioridade | urlencode }}&prob=78&data={{ data | urlencode }}"
                                        class="ex-btn-acao" title="Visualizar">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

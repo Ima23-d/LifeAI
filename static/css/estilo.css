@@ -776,9 +776,70 @@ body {
 }
 
 /* ===============================================
-   RESPONSIVE
+   RESPONSIVE — MOBILE SIDEBAR & LAYOUT
    =============================================== */
 
+/* ── Overlay ───────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity var(--transicao-media);
+}
+
+.sidebar-overlay.ativo {
+  display: block;
+  opacity: 1;
+}
+
+/* ── Hambúrguer ─────────────────────────────────── */
+.btn-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--raio-medio);
+  flex-shrink: 0;
+  transition: background var(--transicao-rapida);
+}
+
+.btn-hamburger:hover {
+  background: var(--cor-cinza-leve);
+}
+
+.hamburger-linha {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--cor-texto-principal);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+  transform-origin: center;
+}
+
+/* Animação X quando aberto */
+.btn-hamburger.ativo .hamburger-linha:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.btn-hamburger.ativo .hamburger-linha:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.btn-hamburger.ativo .hamburger-linha:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── Tablet (1024px) ────────────────────────────── */
 @media (max-width: 1024px) {
   .barra-lateral {
     width: 240px;
@@ -794,16 +855,24 @@ body {
   }
 }
 
+/* ── Mobile (768px) ─────────────────────────────── */
 @media (max-width: 768px) {
+  .btn-hamburger {
+    display: flex;
+  }
+
   .barra-lateral {
     position: fixed;
-    left: -280px;
-    transition: left var(--transicao-media);
+    left: -290px;
+    width: 280px;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 999;
+    box-shadow: none;
   }
 
   .barra-lateral.ativa {
     left: 0;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
   }
 
   .area-conteudo {
@@ -831,27 +900,95 @@ body {
   h2 {
     font-size: 1.5rem;
   }
-}
 
-@media (max-width: 640px) {
-  .container-barra-superior {
-    padding: 0 var(--espaco-lg);
+  /* Tabelas: scroll horizontal */
+  .ex-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .secao-esquerda-barra {
-    gap: var(--espaco-sm);
+  .ex-table {
+    min-width: 600px;
+  }
+
+  /* Stat cards: 2 colunas */
+  .ex-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Toolbar: empilhar */
+  .ex-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .ex-toolbar-right {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ex-search {
+    width: 100%;
+  }
+
+  /* Detalhes do exame */
+  .det-wrap {
+    grid-template-columns: 1fr !important;
+  }
+
+  .det-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  /* Paginação */
+  .ex-paginacao {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+}
+
+/* ── Small mobile (480px) ───────────────────────── */
+@media (max-width: 480px) {
+  .container-barra-superior {
+    padding: 0 var(--espaco-md);
   }
 
   .conteudo-principal {
     padding: var(--espaco-md);
   }
 
-  .card {
-    padding: var(--espaco-lg);
+  .ex-stats {
+    grid-template-columns: 1fr !important;
   }
-}
 
-gap: var(--espaco-sm);
+  .ex-h1 {
+    font-size: 1.4rem;
+  }
+
+  .ex-sub {
+    font-size: 0.8rem;
+  }
+
+  .det-grid2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grupo-botoes-formulario {
+    flex-direction: column;
+  }
+
+  .botao {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filtros-tags {
+    flex-wrap: wrap;
+  }
 }
 
 .logo {

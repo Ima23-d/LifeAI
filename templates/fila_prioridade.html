@@ -211,7 +211,7 @@
                                     </div>
                                 </td>
                                 <td style="text-align: right; padding-right: 2rem; border-bottom: 1px solid #f3f4f6;">
-                                    <a href="{{ url_for('detalhes_exame_demo') }}?id={{ id_ex }}&paciente={{ paciente | urlencode }}&sexo={{ sexo | urlencode }}&doenca={{ achado | urlencode }}&prioridade={{ pri | urlencode }}&prob={{ prob | urlencode }}&data={{ data | urlencode }}"
+                                    <a href="/exames/demo?id={{ id_ex | urlencode }}&paciente={{ paciente | urlencode }}&sexo={{ sexo | urlencode }}&doenca={{ achado | urlencode }}&prioridade={{ pri | urlencode }}&prob={{ prob | urlencode }}&data={{ data | urlencode }}"
                                        class="ex-btn-acao" title="Visualizar" style="border-radius: 50%;">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

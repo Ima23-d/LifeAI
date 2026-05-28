@@ -1,23 +1,68 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-from datetime import datetime
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_file
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
 from urllib.parse import quote as url_quote
+import os
 import json
 
-app = Flask(__name__)
-# Colocar no env
-app.secret_key = 'SECRET_KEY'
+from database import db, Usuario, Exame, Analise, init_db
+from ai_analyzer import analisar_imagem
 
-# Filtro Jinja2 para codificar valores em URLs
+# ==========================================
+# CONFIGURAÇÃO DA APLICAÇÃO
+# ==========================================
+
+app = Flask(__name__)
+app.secret_key = 'sua_chave_secreta_muito_segura_mudar_em_producao_2024'
+
+# Configuração do banco de dados
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "lifeai.db")}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configuração de upload
+UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp', 'dcm'}
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
+
+# Inicializar banco de dados
+db.init_app(app)
+
+# Filtro Jinja2
 app.jinja_env.filters['urlencode'] = lambda v: url_quote(str(v)) if v else ''
 
 
 # ==========================================
-# DADOS DE EXEMPLO 
+# FUNÇÕES AUXILIARES
 # ==========================================
 
-usuarios_autenticados = {}
-exames_armazenados = []
-fila_prioridade = []
+def arquivo_permitido(filename):
+    """Verifica se o arquivo tem extensão permitida"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def login_requerido(f):
+    """Decorator para verificar autenticação"""
+    def decorator(*args, **kwargs):
+        if 'usuario_id' not in session:
+            return redirect(url_for('pagina_login'))
+        return f(*args, **kwargs)
+    decorator.__name__ = f.__name__
+    return decorator
+
+
+def obter_usuario_atual():
+    """Obtém o usuário autenticado"""
+    if 'usuario_id' in session:
+        return Usuario.query.get(session['usuario_id'])
+    return None
 
 # ==========================================
 # ROTAS DE AUTENTICAÇÃO
@@ -25,7 +70,7 @@ fila_prioridade = []
 
 @app.route('/')
 def indice():
-    """Página inicial - redireciona para login se não autenticado"""
+    """Página inicial"""
     if 'usuario_id' in session:
         return redirect(url_for('painel_controle'))
     return redirect(url_for('pagina_login'))
@@ -38,11 +83,14 @@ def pagina_login():
         email = request.form.get('email')
         senha = request.form.get('senha')
         
-        if email and senha:
-            session['usuario_id'] = email
-            session['nome_usuario'] = 'Dr. João Silva'
-            session['crm'] = '123456/SP'
-            session['hospital'] = 'Hospital Clínico Central'
+        usuario = Usuario.query.filter_by(email=email).first()
+        
+        if usuario and check_password_hash(usuario.senha, senha):
+            session['usuario_id'] = usuario.id
+            session['nome_usuario'] = usuario.nome
+            session['crm'] = usuario.crm
+            session['hospital'] = usuario.hospital
+            session['email'] = usuario.email
             return redirect(url_for('painel_controle'))
         
         return render_template('login.html', erro='Email ou senha inválidos')
@@ -69,18 +117,30 @@ def pagina_cadastro():
         if senha != confirmar_senha:
             return render_template('cadastro.html', erro='As senhas não coincidem')
         
-        usuarios_autenticados[email] = {
-            'nome': nome_completo,
-            'cpf': cpf,
-            'crm': crm,
-            'hospital': hospital,
-            'senha': senha
-        }
+        if Usuario.query.filter_by(email=email).first():
+            return render_template('cadastro.html', erro='Email já cadastrado')
         
-        session['usuario_id'] = email
-        session['nome_usuario'] = nome_completo
-        session['crm'] = crm
-        session['hospital'] = hospital
+        if Usuario.query.filter_by(cpf=cpf).first():
+            return render_template('cadastro.html', erro='CPF já cadastrado')
+        
+        # Criar novo usuário
+        novo_usuario = Usuario(
+            nome=nome_completo,
+            email=email,
+            cpf=cpf,
+            crm=crm,
+            hospital=hospital,
+            senha=generate_password_hash(senha)
+        )
+        
+        db.session.add(novo_usuario)
+        db.session.commit()
+        
+        session['usuario_id'] = novo_usuario.id
+        session['nome_usuario'] = novo_usuario.nome
+        session['crm'] = novo_usuario.crm
+        session['hospital'] = novo_usuario.hospital
+        session['email'] = novo_usuario.email
         
         return redirect(url_for('painel_controle'))
     
@@ -89,7 +149,7 @@ def pagina_cadastro():
 
 @app.route('/sair')
 def sair():
-    """Fazer logout"""
+    """Logout"""
     session.clear()
     return redirect(url_for('pagina_login'))
 
@@ -99,35 +159,47 @@ def sair():
 # ==========================================
 
 @app.route('/painel-controle')
+@login_requerido
 def painel_controle():
-    """Dashboard principal"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    """Dashboard principal com dados reais"""
+    usuario = obter_usuario_atual()
     
-    # Dados de exemplo
+    # Contar exames por prioridade
+    exames_usuario = Exame.query.filter_by(usuario_id=usuario.id).all()
+    
+    total_exames = len(exames_usuario)
+    urgentes = sum(1 for e in exames_usuario if e.prioridade == 'URGENTE')
+    criticos = sum(1 for e in exames_usuario if e.prioridade == 'CRÍTICO')
+    atencao = sum(1 for e in exames_usuario if e.prioridade == 'ATENÇÃO')
+    normais = sum(1 for e in exames_usuario if e.prioridade == 'NORMAL')
+    
+    # Exames pendentes de análise
+    pendentes = sum(1 for e in exames_usuario if e.status == 'PENDENTE')
+    
     contexto = {
-        'total_exames': 8,
-        'urgentes': 3,
-        'atenção': 6,
-        'normais': 45,
-        'ia_ativa': 1,
-        'pacientes_fila': 75,
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
-        'crm': session.get('crm'),
+        'total_exames': total_exames,
+        'urgentes': urgentes,
+        'criticos': criticos,
+        'atenção': atencao,
+        'normais': normais,
+        'pendentes': pendentes,
+        'pacientes_fila': total_exames,
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
+        'crm': usuario.crm,
     }
     
     return render_template('painel_controle.html', **contexto)
 
 
 @app.route('/novo-exame', methods=['GET', 'POST'])
+@login_requerido
 def novo_exame():
-    """Página para upload de novo exame"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    """Página para upload de novo exame com análise de IA"""
+    usuario = obter_usuario_atual()
     
     if request.method == 'POST':
-        # Processar upload de exame
+        # Validar campos obrigatórios
         nome_paciente = request.form.get('nome_paciente')
         cpf_paciente = request.form.get('cpf_paciente')
         data_nascimento = request.form.get('data_nascimento')
@@ -136,108 +208,223 @@ def novo_exame():
         sintomas = request.form.get('sintomas')
         observacoes = request.form.get('observacoes')
         
-        resultado_analise = {
-            'gravidade': 'Urgente',
-            'percentual_risco': 78,
-            'prioridade': 'URGENTE',
-            'recomendacao': 'Encaminhamento imediato para pneumologia',
-            'tempo_estimado': '15 minutos'
-        }
+        if not all([nome_paciente, cpf_paciente, data_nascimento, sexo, hospital]):
+            return render_template('novo_exame.html', 
+                                 erro='Preencha todos os campos obrigatórios',
+                                 usuario=usuario.nome,
+                                 hospital=usuario.hospital)
         
-        novo_registro = {
-            'id': len(exames_armazenados) + 1,
-            'nome_paciente': nome_paciente,
-            'cpf': cpf_paciente,
-            'data_nascimento': data_nascimento,
-            'sexo': sexo,
-            'hospital': hospital,
-            'sintomas': sintomas,
-            'observacoes': observacoes,
-            'data_registro': datetime.now().strftime('%d/%m/%Y %H:%M'),
-            'resultado': resultado_analise
-        }
+        # Verificar se usa imagem padrão ou arquivo enviado
+        usar_padrao = request.form.get('usar_imagem_padrao') == '1'
+        arquivo = request.files.get('imagem')
+        arquivo_enviado = arquivo and arquivo.filename != ''
+
+        if not arquivo_enviado and not usar_padrao:
+            return render_template('novo_exame.html',
+                                 erro='Nenhuma imagem foi enviada',
+                                 usuario=usuario.nome,
+                                 hospital=usuario.hospital)
+
+        if arquivo_enviado:
+            if not arquivo_permitido(arquivo.filename):
+                return render_template('novo_exame.html',
+                                     erro='Tipo de arquivo não permitido. Use: PNG, JPG, JPEG, BMP',
+                                     usuario=usuario.nome,
+                                     hospital=usuario.hospital)
+            # Salvar arquivo enviado
+            filename = secure_filename(f"{usuario.id}_{int(datetime.utcnow().timestamp())}_{arquivo.filename}")
+            caminho_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            arquivo.save(caminho_arquivo)
+            nome_arquivo_original = arquivo.filename
+        else:
+            # Usar imagem padrão de demonstração
+            caminho_arquivo = os.path.join(basedir, 'Imagem', 'imagem.jfif')
+            nome_arquivo_original = 'imagem_padrao.jpg'
         
-        exames_armazenados.append(novo_registro)
+        # Criar registro de exame
+        novo_exame_db = Exame(
+            usuario_id=usuario.id,
+            nome_paciente=nome_paciente,
+            cpf_paciente=cpf_paciente,
+            data_nascimento=data_nascimento,
+            sexo=sexo,
+            hospital=hospital,
+            sintomas=sintomas,
+            observacoes=observacoes,
+            caminho_imagem=caminho_arquivo,
+            nome_arquivo_original=nome_arquivo_original,
+            status='PENDENTE'
+        )
         
-        return render_template('novo_exame.html', 
-                             resultado_analise=resultado_analise,
-                             dados_paciente=novo_registro,
-                             usuario=session.get('nome_usuario'))
+        db.session.add(novo_exame_db)
+        db.session.commit()
+        
+        # Analisar imagem com IA
+        print(f"\n🔍 Iniciando análise de IA para exame #{novo_exame_db.id}...")
+        
+        resultado_ia = analisar_imagem(caminho_arquivo)
+        
+        if resultado_ia['sucesso']:
+            # Atualizar exame com resultados
+            novo_exame_db.doenca_identificada = resultado_ia.get('doenca_principal')
+            novo_exame_db.probabilidade = resultado_ia.get('probabilidade')
+            novo_exame_db.gravidade = resultado_ia.get('gravidade')
+            novo_exame_db.confianca = resultado_ia.get('confianca')
+            novo_exame_db.recomendacao = resultado_ia.get('recomendacao')
+            novo_exame_db.prioridade = resultado_ia.get('prioridade')
+            novo_exame_db.status = 'ANALISADO'
+            novo_exame_db.resultado_json = resultado_ia
+            
+            db.session.commit()
+            
+            # Salvar análise
+            analise = Analise(
+                exame_id=novo_exame_db.id,
+                usuario_id=usuario.id,
+                resultado_completo=resultado_ia,
+                tempo_processamento=resultado_ia.get('tempo_processamento')
+            )
+            
+            db.session.add(analise)
+            db.session.commit()
+            
+            print(f"✓ Análise concluída: {resultado_ia.get('doenca_principal')} ({resultado_ia.get('probabilidade')}%)")
+            
+            # Retornar página com resultados reais
+            contexto = {
+                'resultado_analise': resultado_ia,
+                'dados_paciente': {
+                    'id': novo_exame_db.id,
+                    'nome_paciente': novo_exame_db.nome_paciente,
+                    'cpf': novo_exame_db.cpf_paciente,
+                    'data_nascimento': novo_exame_db.data_nascimento,
+                    'sexo': novo_exame_db.sexo,
+                    'hospital': novo_exame_db.hospital,
+                    'sintomas': novo_exame_db.sintomas,
+                    'observacoes': novo_exame_db.observacoes,
+                    'data_registro': novo_exame_db.data_registro.strftime('%d/%m/%Y %H:%M'),
+                },
+                'usuario': usuario.nome,
+                'sucesso': True
+            }
+            
+            return render_template('novo_exame.html', **contexto)
+        else:
+            print(f"✗ Erro na análise: {resultado_ia.get('erro')}")
+            novo_exame_db.status = 'ERRO'
+            db.session.commit()
+            
+            return render_template('novo_exame.html',
+                                 erro=f"Erro na análise: {resultado_ia.get('erro')}",
+                                 usuario=usuario.nome,
+                                 hospital=usuario.hospital)
     
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
     }
     
     return render_template('novo_exame.html', **contexto)
 
 
 @app.route('/exames')
+@login_requerido
 def lista_exames():
-    """Lista de todos os exames realizados"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    """Lista de todos os exames do usuário"""
+    usuario = obter_usuario_atual()
+    
+    # Buscar exames ordenados por data (mais recentes primeiro)
+    exames = Exame.query.filter_by(usuario_id=usuario.id).order_by(Exame.data_registro.desc()).all()
     
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
-        'exames': exames_armazenados,
-        'total_exames': len(exames_armazenados),
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
+        'exames': exames,
+        'total_exames': len(exames),
     }
     
     return render_template('exames.html', **contexto)
 
 
 @app.route('/exames/<int:id_exame>')
+@login_requerido
 def detalhes_exame(id_exame):
     """Página de detalhes de um exame específico"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    usuario = obter_usuario_atual()
     
-    exame = next((e for e in exames_armazenados if e['id'] == id_exame), None)
+    exame = Exame.query.get_or_404(id_exame)
     
-    if not exame:
+    # Verificar permissão
+    if exame.usuario_id != usuario.id:
         return redirect(url_for('lista_exames'))
     
+    # Buscar análise associada
+    analise = Analise.query.filter_by(exame_id=id_exame).first()
+    
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
         'exame': exame,
+        'analise': analise,
+        'is_demo': False,
     }
     
     return render_template('detalhes_exame.html', **contexto)
 
 
 @app.route('/exames/demo')
+@login_requerido
 def detalhes_exame_demo():
-    """Página de detalhes para exames de demonstração (sem banco de dados)"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
-        
-    exame_demo = {
-        'id': request.args.get('id', 'EXM-2025-0524-0001'),
-        'nome_paciente': request.args.get('paciente', 'Paciente Demonstração'),
-        'sexo': request.args.get('sexo', 'Não informado'),
-        'cpf': request.args.get('cpf', '***.***.***-**'),
-        'data_nascimento': request.args.get('nascimento', '—'),
-        'hospital': session.get('hospital', 'Hospital Clínico Central'),
-        'sintomas': request.args.get('sintomas', 'Dificuldade respiratória, tosse persistente'),
-        'observacoes': request.args.get('obs', 'Exame de demonstração gerado automaticamente pelo sistema LifeAI.'),
-        'data_registro': request.args.get('data', '24/05/2025 10:32'),
-        'imagem_url': 'img/chest_xray.png',
-        'resultado': {
-            'gravidade': request.args.get('doenca', 'Pneumonia'),
-            'percentual_risco': int(request.args.get('prob', '78').replace('%', '')),
-            'prioridade': request.args.get('prioridade', 'ALTA'),
-            'recomendacao': 'Encaminhamento imediato para pneumologia. Iniciar antibioticoterapia empírica conforme protocolo institucional.',
-            'tempo_estimado': '15 minutos',
-        }
-    }
+    """Página de detalhes de exame de demonstração (dados fictícios via query string)"""
+    import types
+    usuario = obter_usuario_atual()
+
+    id_ex      = request.args.get('id', 'EXM-DEMO')
+    paciente   = request.args.get('paciente', 'Paciente Demo')
+    doenca     = request.args.get('doenca', 'Pneumonia')
+    prioridade = request.args.get('prioridade', 'ALTA')
+    prob_str   = request.args.get('prob', '78')
+    data       = request.args.get('data', '—')
+    sexo_val   = request.args.get('sexo', '—')
+
+    prob_float = float(prob_str) if prob_str.replace('.', '').isdigit() else 78.0
+
+    # SimpleNamespace evita o problema de escopo de classes internas
+    exame = types.SimpleNamespace(
+        id                  = id_ex,
+        nome_paciente       = paciente,
+        sexo                = sexo_val,
+        cpf_paciente        = '***.***.***-**',
+        data_nascimento     = '—',
+        hospital            = usuario.hospital,
+        sintomas            = None,
+        observacoes         = None,
+        data_registro       = data,
+        caminho_imagem      = None,
+        nome_arquivo_original = '—',
+        status              = 'ANALISADO',
+        doenca_identificada = doenca,
+        probabilidade       = prob_float,
+        gravidade           = 'Moderada',
+        prioridade          = prioridade,
+        recomendacao        = 'Correlacionar com apresentação clínica do paciente.',
+        resultado_json      = {
+            'sucesso': True,
+            'doenca_principal': doenca,
+            'probabilidade': prob_float,
+            'gravidade': 'Moderada',
+            'prioridade': prioridade,
+            'recomendacao': 'Correlacionar com apresentação clínica do paciente.',
+            'resultados_completos': [],
+            'tempo_processamento': 0,
+        },
+    )
 
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
-        'exame': exame_demo,
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
+        'exame': exame,
+        'analise': None,
         'is_demo': True,
     }
 
@@ -245,19 +432,23 @@ def detalhes_exame_demo():
 
 
 @app.route('/fila-prioridade')
+@login_requerido
 def fila_prioridade():
-    """Página da fila de prioridade hospitalar"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    """Página da fila de prioridade"""
+    usuario = obter_usuario_atual()
     
-    # Ordenar exames por prioridade
+    # Buscar exames ordenados por prioridade
     prioridades = {'CRÍTICO': 0, 'URGENTE': 1, 'ATENÇÃO': 2, 'NORMAL': 3}
-    exames_ordenados = sorted(exames_armazenados, 
-                              key=lambda x: prioridades.get(x['resultado'].get('prioridade', 'NORMAL'), 4))
+    exames = Exame.query.filter_by(usuario_id=usuario.id).all()
+    exames_ordenados = sorted(
+        exames,
+        key=lambda x: (prioridades.get(x.prioridade, 4), x.data_registro.timestamp()),
+        reverse=True
+    )
     
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
         'exames_fila': exames_ordenados,
         'total_fila': len(exames_ordenados),
     }
@@ -266,51 +457,72 @@ def fila_prioridade():
 
 
 @app.route('/relatorios')
+@login_requerido
 def pagina_relatorios():
-    """Página de relatórios e analytics"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    """Página de relatórios com dados reais"""
+    usuario = obter_usuario_atual()
+    
+    exames = Exame.query.filter_by(usuario_id=usuario.id).all()
+    
+    # Calcular estatísticas
+    total_exames = len(exames)
+    total_pacientes = len(set(e.cpf_paciente for e in exames))
+    casos_graves = sum(1 for e in exames if e.prioridade in ['CRÍTICO', 'URGENTE'])
+    exames_analisados = sum(1 for e in exames if e.status == 'ANALISADO')
+    
+    # Calcular tempo médio de atendimento
+    tempos = [a.tempo_processamento for a in Analise.query.filter_by(usuario_id=usuario.id).all() if a.tempo_processamento]
+    tempo_medio = sum(tempos) / len(tempos) if tempos else 0
+    
+    # Taxa de eficiência (exames analisados com sucesso / total)
+    eficiencia = (exames_analisados / total_exames * 100) if total_exames > 0 else 0
     
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
-        'total_exames': len(exames_armazenados),
-        'total_pacientes': len(exames_armazenados),
-        'casos_graves': sum(1 for e in exames_armazenados if e['resultado'].get('prioridade') in ['CRÍTICO', 'URGENTE']),
-        'tempo_medio_atendimento': '12 minutos',
-        'eficiencia_ia': '94.5%',
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
+        'total_exames': total_exames,
+        'total_pacientes': total_pacientes,
+        'casos_graves': casos_graves,
+        'exames_analisados': exames_analisados,
+        'tempo_medio_atendimento': f"{tempo_medio:.1f}s",
+        'eficiencia_ia': f"{eficiencia:.1f}%",
+        'exames': exames[:10]  # Últimos 10 exames
     }
     
     return render_template('relatorios.html', **contexto)
 
 
 @app.route('/configuracoes')
+@login_requerido
 def pagina_configuracoes():
     """Página de configurações"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    usuario = obter_usuario_atual()
     
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
-        'crm': session.get('crm'),
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
+        'crm': usuario.crm,
+        'email': usuario.email,
     }
     
     return render_template('configuracoes.html', **contexto)
 
 
 @app.route('/perfil')
+@login_requerido
 def pagina_perfil():
     """Página de perfil do usuário"""
-    if 'usuario_id' not in session:
-        return redirect(url_for('pagina_login'))
+    usuario = obter_usuario_atual()
+    
+    exames_usuario = Exame.query.filter_by(usuario_id=usuario.id).all()
     
     contexto = {
-        'usuario': session.get('nome_usuario'),
-        'hospital': session.get('hospital'),
-        'crm': session.get('crm'),
-        'email': session.get('usuario_id'),
-        'total_exames_realizados': len(exames_armazenados),
+        'usuario': usuario.nome,
+        'hospital': usuario.hospital,
+        'crm': usuario.crm,
+        'email': usuario.email,
+        'total_exames_realizados': len(exames_usuario),
+        'data_membro': usuario.data_criacao.strftime('%d/%m/%Y'),
     }
     
     return render_template('perfil.html', **contexto)
@@ -319,35 +531,121 @@ def pagina_perfil():
 # ==========================================
 # ROTAS API (AJAX)
 # ==========================================
-# SIMULADO
+
 @app.route('/api/analisar-exame', methods=['POST'])
 def api_analisar_exame():
     """API para análise de exame com IA"""
+    if 'usuario_id' not in session:
+        return jsonify({'sucesso': False, 'erro': 'Não autenticado'}), 401
+    
     dados = request.json
+    usuario = obter_usuario_atual()
     
-    resultado = {
-        'sucesso': True,
-        'gravidade': 'Urgente',
-        'percentual_risco': 78,
-        'prioridade': 'URGENTE',
-        'recomendacao': 'Encaminhamento imediato para pneumologia',
-        'tempo_estimado': '15 minutos'
-    }
+    id_exame = dados.get('id_exame')
+    exame = Exame.query.get_or_404(id_exame)
     
-    return jsonify(resultado)
+    # Verificar permissão
+    if exame.usuario_id != usuario.id:
+        return jsonify({'sucesso': False, 'erro': 'Sem permissão'}), 403
+    
+    if exame.status != 'PENDENTE':
+        return jsonify({'sucesso': False, 'erro': 'Exame já foi analisado'}), 400
+    
+    # Analisar imagem
+    resultado = analisar_imagem(exame.caminho_imagem)
+    
+    if resultado['sucesso']:
+        exame.doenca_identificada = resultado.get('doenca_principal')
+        exame.probabilidade = resultado.get('probabilidade')
+        exame.gravidade = resultado.get('gravidade')
+        exame.confianca = resultado.get('confianca')
+        exame.recomendacao = resultado.get('recomendacao')
+        exame.prioridade = resultado.get('prioridade')
+        exame.status = 'ANALISADO'
+        exame.resultado_json = resultado
+        
+        db.session.commit()
+        
+        # Salvar análise
+        analise = Analise(
+            exame_id=exame.id,
+            usuario_id=usuario.id,
+            resultado_completo=resultado,
+            tempo_processamento=resultado.get('tempo_processamento')
+        )
+        db.session.add(analise)
+        db.session.commit()
+        
+        return jsonify(resultado)
+    else:
+        return jsonify({'sucesso': False, 'erro': resultado.get('erro')}), 500
 
 
 @app.route('/api/dados-dashboard')
 def api_dados_dashboard():
     """API para dados do dashboard em tempo real"""
+    if 'usuario_id' not in session:
+        return jsonify({'erro': 'Não autenticado'}), 401
+    
+    usuario = obter_usuario_atual()
+    exames = Exame.query.filter_by(usuario_id=usuario.id).all()
+    
     dados = {
-        'total_exames': len(exames_armazenados),
-        'urgentes': sum(1 for e in exames_armazenados if e['resultado'].get('prioridade') == 'URGENTE'),
-        'atenção': sum(1 for e in exames_armazenados if e['resultado'].get('prioridade') == 'ATENÇÃO'),
-        'normais': sum(1 for e in exames_armazenados if e['resultado'].get('prioridade') == 'NORMAL'),
-        'criticos': sum(1 for e in exames_armazenados if e['resultado'].get('prioridade') == 'CRÍTICO'),
+        'total_exames': len(exames),
+        'urgentes': sum(1 for e in exames if e.prioridade == 'URGENTE'),
+        'criticos': sum(1 for e in exames if e.prioridade == 'CRÍTICO'),
+        'atenção': sum(1 for e in exames if e.prioridade == 'ATENÇÃO'),
+        'normais': sum(1 for e in exames if e.prioridade == 'NORMAL'),
     }
+    
     return jsonify(dados)
+
+
+# ==========================================
+# ROTA PARA SERVIR UPLOADS
+# ==========================================
+
+@app.route('/uploads/<filename>')
+def servir_upload(filename):
+    """Serve arquivos da pasta de uploads ou imagens padrão"""
+    try:
+        secure_name = secure_filename(filename)
+        
+        # Se for imagem_padrao.jpg, servir sem autenticação
+        if secure_name == 'imagem_padrao.jpg':
+            caminho_padrao = os.path.join(basedir, 'Imagem', 'imagem.jfif')
+            if os.path.exists(caminho_padrao):
+                return send_file(caminho_padrao, mimetype='image/jpeg')
+            return '', 404
+        
+        # Para outros arquivos, exigir autenticação
+        if 'usuario_id' not in session:
+            return '', 401
+        
+        # Validar se o arquivo do upload existe
+        caminho_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], secure_name)
+        if os.path.exists(caminho_arquivo):
+            return send_file(caminho_arquivo, as_attachment=False)
+        
+        # Arquivo não encontrado
+        return '', 404
+    except Exception as e:
+        print(f"Erro ao servir arquivo: {e}")
+        return '', 404
+
+
+@app.route('/imagem-padrao')
+def imagem_padrao():
+    """Serve a imagem padrão sem autenticação"""
+    try:
+        caminho = os.path.join(basedir, 'Imagem', 'imagem.jfif')
+        if os.path.exists(caminho):
+            return send_file(caminho, mimetype='image/jpeg')
+        return '', 404
+    except Exception as e:
+        print(f"Erro ao servir imagem padrão: {e}")
+        return '', 404
+
 
 
 # ==========================================
@@ -371,4 +669,22 @@ def erro_interno(erro):
 # ==========================================
 
 if __name__ == '__main__':
+    with app.app_context():
+        init_db(app)
+        
+        # Criar usuários de demonstração (remover em produção)
+        if Usuario.query.first() is None:
+            print("\n📝 Criando usuário de demonstração...")
+            usuario_demo = Usuario(
+                email='demo@lifeai.com',
+                nome='Dr. João Silva',
+                cpf='123.456.789-10',
+                crm='123456/SP',
+                hospital='Hospital Clínico Central',
+                senha=generate_password_hash('demo123')
+            )
+            db.session.add(usuario_demo)
+            db.session.commit()
+            print("✓ Usuário demo criado: demo@lifeai.com / senha: demo123\n")
+    
     app.run(debug=True, host='127.0.0.1', port=5000)

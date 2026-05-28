@@ -39,21 +39,52 @@
                                 <fieldset class="fieldset-formulario">
                                     <legend class="legenda-fieldset">Imagem do Exame</legend>
 
-                                    <div class="area-upload" id="areaUpload">
+                                    <!-- Imagem padrão pré-carregada -->
+                                    <div id="areaImagemPadrao" style="
+                                        background: #0f172a;
+                                        border-radius: 12px;
+                                        overflow: hidden;
+                                        position: relative;
+                                        margin-bottom: 1rem;
+                                    ">
+                                        <img
+                                            src="{{ url_for('static', filename='imagem_padrao.jpg') }}"
+                                            alt="Raio-X padrão pré-carregado"
+                                            style="width:100%; max-height:280px; object-fit:contain; display:block; filter:brightness(.95) contrast(1.1);"
+                                        >
+                                        <div style="
+                                            position:absolute; bottom:0; left:0; right:0;
+                                            background:linear-gradient(transparent,rgba(0,0,0,.7));
+                                            padding:.75rem 1rem;
+                                            display:flex; align-items:center; justify-content:space-between;
+                                        ">
+                                            <span style="color:#fff;font-size:.8rem;font-weight:600;">📷 Imagem de demonstração pré-carregada</span>
+                                            <button type="button" id="btnTrocarImagem" style="
+                                                background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);
+                                                color:#fff; border-radius:6px; padding:.3rem .75rem;
+                                                font-size:.75rem; cursor:pointer; font-weight:600;
+                                                backdrop-filter:blur(4px);
+                                            ">Trocar imagem</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Input real (oculto por padrão) -->
+                                    <div id="areaUpload" class="area-upload" style="display:none;">
                                         <svg class="icone-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3v-7"/>
                                         </svg>
                                         <h4 class="titulo-upload">Arraste a imagem aqui ou clique</h4>
-                                        <p class="descricao-upload">Formatos: DICOM, PNG, JPG | Tamanho máximo: 50MB</p>
-                                        <input 
-                                            type="file" 
-                                            id="arquivo_exame" 
-                                            name="arquivo_exame" 
-                                            class="campo-arquivo-oculto" 
+                                        <p class="descricao-upload">Formatos: PNG, JPG, JPEG, BMP | Tamanho máximo: 50MB</p>
+                                        <input
+                                            type="file"
+                                            id="arquivo_exame"
+                                            name="imagem"
+                                            class="campo-arquivo-oculto"
                                             accept="image/*,.dcm"
                                         >
                                     </div>
 
+                                    <!-- Preview da imagem trocada -->
                                     <div class="preview-imagem" id="previewImagem" style="display: none;">
                                         <img id="imagemPreview" src="" alt="Preview">
                                         <button type="button" class="botao-remover-imagem" id="btnRemoverImagem">
@@ -62,6 +93,9 @@
                                             </svg>
                                         </button>
                                     </div>
+
+                                    <!-- Flag oculta: usar imagem padrão -->
+                                    <input type="hidden" id="usarImagemPadrao" name="usar_imagem_padrao" value="1">
                                 </fieldset>
 
                                 <!-- Dados do Paciente -->
@@ -167,7 +201,7 @@
                                     </button>
                                     <button type="submit" class="botao botao-primario" id="btnAnalisarIA">
                                         <svg class="icone-botao" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 12 14.6V9a2 2 0 10-4 0v.393a3.374 3.374 0 001.371 2.708l-.548.547z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 14.601V9a2 2 0 1 0-4 0v5.601a3.374 3.374 0 0 0-.547.748l-.548-.548z"/>
                                         </svg>
                                         Analisar com IA
                                     </button>
@@ -191,17 +225,21 @@
                             <h3 class="titulo-resultado">Análise Concluída</h3>
                             <p class="descricao-resultado">Resultado da análise com IA</p>
 
-                            <!-- Resultado Principal -->
+                            <!-- Achado Principal -->
                             <div class="bloco-resultado-principal">
+                                <div class="linha-resultado">
+                                    <span class="label-resultado">Achado Principal:</span>
+                                    <span class="valor-resultado">{{ resultado_analise.doenca_principal }}</span>
+                                </div>
                                 <div class="linha-resultado">
                                     <span class="label-resultado">Gravidade:</span>
                                     <span class="valor-resultado">{{ resultado_analise.gravidade }}</span>
                                 </div>
                                 <div class="indicador-percentual-resultado">
                                     <div class="barra-percentual">
-                                        <div class="preenchimento-percentual" style="width: {{ resultado_analise.percentual_risco }}%"></div>
+                                        <div class="preenchimento-percentual" style="width: {{ resultado_analise.probabilidade }}%"></div>
                                     </div>
-                                    <span class="texto-percentual">{{ resultado_analise.percentual_risco }}% de risco</span>
+                                    <span class="texto-percentual">{{ resultado_analise.probabilidade }}% de probabilidade</span>
                                 </div>
                             </div>
 
@@ -219,10 +257,10 @@
                                 <p class="texto-recomendacao">{{ resultado_analise.recomendacao }}</p>
                             </div>
 
-                            <!-- Tempo Estimado -->
+                            <!-- Tempo de Processamento -->
                             <div class="secao-tempo">
-                                <h4 class="titulo-secao-resultado">Tempo Estimado de Atendimento</h4>
-                                <div class="valor-tempo">{{ resultado_analise.tempo_estimado }}</div>
+                                <h4 class="titulo-secao-resultado">Tempo de Processamento pela IA</h4>
+                                <div class="valor-tempo">{{ resultado_analise.tempo_processamento }}s</div>
                             </div>
 
                             <!-- Botões de Ação -->
@@ -246,5 +284,63 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/aplicativo.js') }}"></script>
+    <script>
+    (function () {
+        var areaPadrao   = document.getElementById('areaImagemPadrao');
+        var areaUpload   = document.getElementById('areaUpload');
+        var previewEl    = document.getElementById('previewImagem');
+        var previewImg   = document.getElementById('imagemPreview');
+        var inputFile    = document.getElementById('arquivo_exame');
+        var btnTrocar    = document.getElementById('btnTrocarImagem');
+        var btnRemover   = document.getElementById('btnRemoverImagem');
+        var flagPadrao   = document.getElementById('usarImagemPadrao');
+
+        // Botão "Trocar imagem" — abre o seletor de arquivo
+        if (btnTrocar) {
+            btnTrocar.addEventListener('click', function () {
+                areaPadrao.style.display = 'none';
+                areaUpload.style.display = 'block';
+                flagPadrao.value = '0';
+                inputFile.click();
+            });
+        }
+
+        // Quando o usuário seleciona um arquivo
+        if (inputFile) {
+            inputFile.addEventListener('change', function () {
+                var file = this.files[0];
+                if (!file) return;
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    areaUpload.style.display = 'none';
+                    previewEl.style.display   = 'block';
+                    areaPadrao.style.display  = 'none';
+                    flagPadrao.value = '0';
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Botão remover — volta à imagem padrão
+        if (btnRemover) {
+            btnRemover.addEventListener('click', function () {
+                previewEl.style.display   = 'none';
+                areaPadrao.style.display  = 'block';
+                areaUpload.style.display  = 'none';
+                inputFile.value = '';
+                flagPadrao.value = '1';
+            });
+        }
+
+        // Clique na área de upload abre o seletor
+        if (areaUpload) {
+            areaUpload.addEventListener('click', function () {
+                inputFile.click();
+            });
+        }
+    })();
+    </script>
 </body>
 </html>
